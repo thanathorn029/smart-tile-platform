@@ -118,193 +118,149 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#0b0d12] font-sans text-white">
-      {/* ---------- BACKGROUND IMAGE ---------- */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=2400&q=80')",
-        }}
-      />
-      {/* dusk color grade */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1b2340]/70 via-[#0b0d12]/20 to-[#0b0d12]/80" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
-
-      {/* ---------- TOP BAR ---------- */}
-      <header className="relative z-30 mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 pt-8">
-        <div className="flex flex-1 flex-col gap-4 rounded-full border border-white/15 bg-white/10 p-4 backdrop-blur-2xl shadow-lg sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <FilterField label="ประเภทกระเบื้อง" value="พื้น / ผนัง" />
-            <FilterField label="วัสดุ" value="เซรามิค / หิน" />
-            <FilterField label="งาน" value="ปูกระเบื้องบ้าน" />
-          </div>
-          <div className="flex items-center gap-2">
-            {userEmail ? (
-              <button
-                onClick={handleLogout}
-                className="rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm font-medium text-white/90 transition-all hover:bg-white/20 shadow-lg"
-              >
-                Logout
-              </button>
-            ) : (
-              <Link
-                href="/login"
-                className="rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-medium text-white/90 transition-all hover:bg-white/20 shadow-lg"
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* ---------- LEFT SIDEBAR ---------- */}
-      <nav className="fixed left-6 top-1/2 z-30 flex -translate-y-1/2 flex-col items-center gap-3 rounded-full border border-white/15 bg-white/10 p-3 backdrop-blur-2xl shadow-lg">
-        <SideIcon active>
-          <Home size={18} strokeWidth={2} />
-        </SideIcon>
-        <SideIcon active={showPages} onClick={() => setShowPages((s) => !s)}>
-          <LayoutGrid size={18} strokeWidth={2} />
-        </SideIcon>
-
-        <SideIcon>
-          <Bell size={18} strokeWidth={2} />
-        </SideIcon>
-
-        <div
-          className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
-            userEmail
-              ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg'
-              : 'border border-white/15 text-white/70'
-          }`}
-          aria-label="Profile"
-        >
-          {userEmail ? userEmail.charAt(0).toUpperCase() : <User size={18} strokeWidth={2} />}
-        </div>
-      </nav>
-
-      {/* Pages panel (appears from the left when toggled) */}
-      <div
-        className={`fixed left-20 top-1/2 z-40 -translate-y-1/2 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-2xl shadow-lg transition-all duration-200 ${
-          showPages ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 pointer-events-none'
-        }`}
-      >
-        <h4 className="text-sm font-semibold text-white/80 mb-3">Pages</h4>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {[
-            { href: '/calculator', label: 'Calculator', Icon: Calculator },
-            { href: '/crm', label: 'CRM', Icon: User },
-            { href: '/promotions', label: 'Promotions', Icon: Megaphone },
-          ].map((p) => {
-            const IconComp = p.Icon as any;
-            return (
-              <Link
-                key={p.href}
-                href={p.href}
-                className="flex items-center gap-3 rounded-xl bg-white/6 px-4 py-3 text-sm font-medium text-white/95 hover:bg-white/10"
-                onClick={() => setShowPages(false)}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white/8">
-                  <IconComp size={16} strokeWidth={2} />
-                </span>
-                <span>{p.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ---------- HERO HEADLINE ---------- */}
-      <main className="relative z-20 mx-auto max-w-6xl px-6">
-        <div className="mt-20 pl-24 sm:mt-28">
-          <h1 className="text-6xl font-semibold leading-[1.05] tracking-tight sm:text-7xl">
-            ค้นหา
-            <br />
-            กระเบื้อง
-            <br />
-            ที่ใช่สำหรับบ้านคุณ
-          </h1>
-          <p className="mt-6 max-w-md pl-1 text-sm leading-relaxed text-white/70">
-            ระบบคำนวณวัสดุปูกระเบื้องพร้อมแนะนำทั้ง COTTO และ จระเข้
-            ช่วยให้คุณวางแผนงานปูกระเบื้องได้ง่ายและแม่นยำมากขึ้น
-          </p>
-        </div>
-
-        {/* ---------- BOTTOM CARDS ---------- */}
-        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-6">
-            <div className="rounded-[2rem] border border-white/15 bg-white/10 p-7 backdrop-blur-2xl shadow-2xl">
-              <h3 className="text-lg font-semibold">คำนวณวัสดุปูกระเบื้อง</h3>
-              <p className="mt-2 text-xs leading-relaxed text-white/60">
-                วัดพื้นที่ ปริมาณวัสดุ ปูนกาว ยาแนว และเลือกกระเบื้องให้ตรงกับผนังหรือพื้นบ้านคุณ
+    <div className="min-h-screen w-full overflow-x-hidden bg-transparent text-white">
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+        <header className="rounded-[28px] border border-white/10 bg-slate-900/70 p-4 shadow-2xl backdrop-blur-xl sm:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-cyan-300">
+                Smart Tile Platform
               </p>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                  <div className="text-3xl font-bold">65%</div>
-                  <div className="text-[11px] text-white/50">ลดเวลาเลือกวัสดุ</div>
-                </div>
-                <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                  <div className="text-3xl font-bold">2 แบรนด์</div>
-                  <div className="text-[11px] text-white/50">COTTO และ จระเข้</div>
-                </div>
-                <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                  <div className="text-3xl font-bold">รองรับปูทับ</div>
-                  <div className="text-[11px] text-white/50">สำหรับงานพื้นและผนัง</div>
-                </div>
-                <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                  <div className="text-3xl font-bold">มืออาชีพ</div>
-                  <div className="text-[11px] text-white/50">ออกแบบเพื่อช่างและผู้ช่วยวางแผน</div>
-                </div>
-              </div>
+              <h1 className="mt-1 text-xl font-semibold text-white sm:text-2xl">
+                ค้นหากระเบื้องบ้านได้ง่ายขึ้น
+              </h1>
             </div>
-
+            <div className="flex flex-wrap items-center gap-2">
+              <FilterField label="ประเภท" value="พื้น / ผนัง" />
+              <FilterField label="วัสดุ" value="เซรามิค" />
+              <FilterField label="งาน" value="ปูกระเบื้อง" />
+              {userEmail ? (
+                <button
+                  onClick={handleLogout}
+                  className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 transition hover:bg-white/20"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-full border border-cyan-400/40 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
           </div>
+        </header>
 
-          <div className="rounded-[2rem] border border-white/15 bg-white/10 p-7 backdrop-blur-2xl shadow-2xl">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">Tile Style Collection</h3>
-                <p className="mt-1 flex items-center gap-1 text-xs text-white/50">
-                  เมทัลสโตน, โมเสก, ลายหินอ่อน
-                </p>
-              </div>
-              <button className="rounded-full border border-white/20 p-2 hover:bg-white/10">
-                <ArrowUpRight size={16} />
-              </button>
+        <main className="mt-4 grid flex-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+          <section className="rounded-[32px] border border-white/10 bg-slate-900/70 p-5 shadow-2xl backdrop-blur-xl sm:p-7 lg:p-8">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-200">
+                คำนวณวัสดุอัตโนมัติ
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
+                รองรับ COTTO และ จระเข้
+              </span>
             </div>
 
-            <p className="mt-4 text-xs leading-relaxed text-white/60">
-              แนะนำคอลเลคชั่นกระเบื้องบ้านที่ได้รับความนิยมสูงสุด พร้อมไอเดียปูกระเบื้อง
-              ทั้งพื้นและผนัง สไตล์เรียบหรู และคุมโทนบ้านได้ง่าย
+            <h2 className="mt-5 text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
+              ค้นหากระเบื้องที่ใช่
+              <br />
+              สำหรับบ้านคุณได้ในไม่กี่คลิก
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              ระบบคำนวณพื้นที่ ปริมาณวัสดุ ปูนกาว และยาแนว พร้อมแนะนำกระเบื้องให้ตรงกับผนังหรือพื้นบ้านคุณ
             </p>
 
-            <div className="mt-5 grid gap-3 text-xs text-white/70">
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">พื้นบ้าน: กระเบื้องเซรามิคขนาด 60x60</div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">ผนังห้องน้ำ: กระเบื้องลายหินอ่อน</div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">ปูทับ: รองรับระบบปูทับกระเบื้องเดิม</div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/calculator"
+                className="flex items-center justify-center rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                เริ่มคำนวณเลย
+              </Link>
+              <button
+                onClick={() => setShowPages((value) => !value)}
+                className="rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+              >
+                {showPages ? 'ซ่อนเมนูหน้า' : 'ดูเมนูหน้า'}
+              </button>
             </div>
 
-            <div className="mt-6 flex items-center justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 text-lg font-bold">
-                T
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="text-2xl font-semibold text-white">65%</div>
+                <div className="mt-1 text-xs text-slate-400">ลดเวลาเลือกวัสดุ</div>
               </div>
-              <div className="flex items-center gap-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 hover:bg-white/10">
-                  <Heart size={16} />
-                </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 hover:bg-white/10">
-                  <Share2 size={16} />
-                </button>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="text-2xl font-semibold text-white">2 แบรนด์</div>
+                <div className="mt-1 text-xs text-slate-400">COTTO และ จระเข้</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="text-2xl font-semibold text-white">ทุกงาน</div>
+                <div className="mt-1 text-xs text-slate-400">พื้น ผนัง และปูทับ</div>
               </div>
             </div>
-          </div>
-        </div>
-      </main>
+          </section>
 
-      {/* LINE Contact Button - Fixed Right Side */}
-      <a 
+          <aside className="flex flex-col gap-4">
+            <div className="rounded-[32px] border border-white/10 bg-slate-900/70 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">เมนูหลัก</p>
+                  <p className="text-xs text-slate-400">เข้าถึงฟีเจอร์สำคัญได้ทันที</p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white/80">
+                  <LayoutGrid size={18} strokeWidth={2} />
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {[
+                  { href: '/calculator', label: 'Calculator', Icon: Calculator },
+                  { href: '/crm', label: 'CRM', Icon: User },
+                  { href: '/promotions', label: 'Promotions', Icon: Megaphone },
+                ].map((p) => {
+                  const IconComp = p.Icon as any;
+                  return (
+                    <Link
+                      key={p.href}
+                      href={p.href}
+                      className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
+                          <IconComp size={16} strokeWidth={2} />
+                        </span>
+                        {p.label}
+                      </span>
+                      <ArrowUpRight size={14} />
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-cyan-500/20 to-purple-500/15 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white">
+                  <Bell size={18} strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">พร้อมช่วยเหลือ</p>
+                  <p className="text-xs text-slate-300">ติดต่อทีมงานผ่าน LINE ได้ทันที</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-slate-200">
+                ถ้าต้องการคำแนะนำแบบสด ๆ หรือมีข้อสงสัยเรื่องวัสดุ ให้กดปุ่ม LINE ด้านล่างได้เลย
+              </p>
+            </div>
+          </aside>
+        </main>
+      </div>
+
+      <a
         href="line://ti/p/@372vxxca"
         onClick={(e) => {
           if (!/line/.test(navigator.userAgent)) {
@@ -312,11 +268,10 @@ export default function HomePage() {
             window.open('https://line.me/R/ti/p/@372vxxca', '_blank');
           }
         }}
-        className="fixed right-6 bottom-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-50"
+        className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition duration-300 hover:scale-110 hover:bg-green-600"
         title="Chat with us on LINE"
       >
-        {/* LINE Logo */}
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+        <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
           <path d="M19.365 9.863c.349-1.269.349-2.734-.436-3.884-1.141-1.745-3.255-2.501-5.369-2.501-3.584 0-6.533 2.202-6.533 5.001 0 1.284.495 2.467 1.314 3.382-.058.407-.349 2.467-.407 2.874-.058.610.611.524 1.058.262.349-.174 2.089-1.284 2.842-1.745.699.087 1.398.116 2.089.116 3.574 0 6.524-2.202 6.524-4.92 0-.699-.087-1.388-.262-2.068-.058.029-.116.029-.174.058 0 .466.058.932.058 1.397 0 2.262-2.089 3.884-4.885 3.884-.932 0-1.864-.174-2.680-.495l-1.512.942c-.436.262-1.058.349-1.397-.145-.232-.407.116-2.467.145-2.734-.465-.932-.814-1.922-.814-2.940 0-3.178 2.648-5.654 5.961-5.654 2.291 0 4.282.815 5.369 2.232.758 1.058.813 2.321.407 3.495l-.058.116z"/>
         </svg>
       </a>
