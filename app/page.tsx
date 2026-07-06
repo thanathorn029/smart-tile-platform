@@ -130,7 +130,7 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
 
       <header className="relative z-30 mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 pt-4 sm:px-6 sm:pt-8">
-        <div className="flex flex-1 flex-col gap-3 rounded-full border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        <div className="flex flex-1 flex-col gap-3 rounded-full border border-white/20 bg-white/12 p-3 shadow-[0_14px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <FilterField label="ประเภทกระเบื้อง" value="พื้น / ผนัง" />
             <FilterField label="วัสดุ" value="เซรามิค / หิน" />
@@ -140,14 +140,14 @@ export default function HomePage() {
             {userEmail ? (
               <button
                 onClick={handleLogout}
-                className="rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/90 transition-all hover:bg-white/20 sm:px-5"
+                className="rounded-full border border-white/20 bg-white/12 px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] active:scale-[0.98] sm:px-5"
               >
                 Logout
               </button>
             ) : (
               <Link
                 href="/login"
-                className="rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/90 transition-all hover:bg-white/20 sm:px-5"
+                className="rounded-full border border-white/20 bg-white/12 px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] active:scale-[0.98] sm:px-5"
               >
                 Login
               </Link>
@@ -156,7 +156,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <nav className="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-row items-center gap-2 rounded-full border border-white/15 bg-white/10 p-2 shadow-2xl backdrop-blur-2xl sm:bottom-auto sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:flex-col sm:gap-3 sm:p-3">
+      <nav className="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-row items-center gap-2 rounded-full border border-white/20 bg-white/12 p-2 shadow-[0_16px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl sm:bottom-auto sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:flex-col sm:gap-3 sm:p-3">
         <SideIcon active>
           <Home size={18} strokeWidth={2} />
         </SideIcon>
@@ -179,7 +179,7 @@ export default function HomePage() {
       </nav>
 
       <div
-        className={`fixed left-4 top-1/2 z-40 -translate-y-1/2 rounded-2xl border border-white/10 bg-white/10 p-4 shadow-2xl backdrop-blur-2xl transition-all duration-200 sm:left-20 ${
+        className={`fixed left-4 top-1/2 z-40 -translate-y-1/2 rounded-2xl border border-white/15 bg-white/12 p-4 shadow-[0_16px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl transition-all duration-300 ease-out sm:left-20 ${
           showPages ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0 pointer-events-none'
         }`}
       >
@@ -195,7 +195,7 @@ export default function HomePage() {
               <Link
                 key={p.href}
                 href={p.href}
-                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-white/95 transition hover:bg-white/15"
+                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 hover:shadow-[0_10px_24px_rgba(0,0,0,0.16)]"
                 onClick={() => setShowPages(false)}
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10">
@@ -214,23 +214,20 @@ export default function HomePage() {
             Smart Tile Platform
           </div>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-            ค้นหา
+            ค้นหากระเบื้อง
             <br />
-            กระเบื้อง
-            <br />
-            ที่ใช่สำหรับบ้านคุณ
+            ที่ใช่ให้บ้านคุณ
           </h1>
           <p className="mt-5 max-w-md pl-1 text-sm leading-relaxed text-white/70 sm:text-base">
-            ระบบคำนวณวัสดุปูกระเบื้องพร้อมแนะนำทั้ง COTTO และ จระเข้
-            ช่วยให้คุณวางแผนงานปูกระเบื้องได้ง่ายและแม่นยำมากขึ้น
+            คำนวณง่าย ๆ พร้อมแนะนำกระเบื้องจาก COTTO และ จระเข้ ให้ตรงกับงานบ้านคุณ
           </p>
         </div>
 
         <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="rounded-[2rem] border border-white/15 bg-white/10 p-6 shadow-2xl backdrop-blur-2xl sm:p-7">
-            <h3 className="text-lg font-semibold">คำนวณวัสดุปูกระเบื้อง</h3>
+          <div className="rounded-[2rem] border border-white/15 bg-white/12 p-6 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-7">
+            <h3 className="text-lg font-semibold">คำนวณวัสดุแบบง่าย ๆ</h3>
             <p className="mt-2 text-sm leading-relaxed text-white/60">
-              วัดพื้นที่ ปริมาณวัสดุ ปูนกาว ยาแนว และเลือกกระเบื้องให้ตรงกับผนังหรือพื้นบ้านคุณ
+              วัดพื้นที่ เลือกกระเบื้อง และรู้ปริมาณวัสดุให้ครบในจังหวะเดียว
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -253,20 +250,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/15 bg-white/10 p-6 shadow-2xl backdrop-blur-2xl sm:p-7">
+          <div className="rounded-[2rem] border border-white/15 bg-white/12 p-6 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-7">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-semibold">Tile Style Collection</h3>
                 <p className="mt-1 text-xs text-white/50">เมทัลสโตน, โมเสก, ลายหินอ่อน</p>
               </div>
-              <button className="rounded-full border border-white/20 p-2 transition hover:bg-white/10">
+              <button className="rounded-full border border-white/20 p-2 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
                 <ArrowUpRight size={16} />
               </button>
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-white/60">
-              แนะนำคอลเลคชั่นกระเบื้องบ้านที่ได้รับความนิยมสูงสุด พร้อมไอเดียปูกระเบื้อง
-              ทั้งพื้นและผนัง สไตล์เรียบหรู และคุมโทนบ้านได้ง่าย
+              แนะนำสไตล์กระเบื้องที่คุมโทนบ้านได้ง่าย เหมาะกับทั้งพื้นและผนัง
             </p>
 
             <div className="mt-5 grid gap-3 text-sm text-white/70">
@@ -280,10 +276,10 @@ export default function HomePage() {
                 T
               </div>
               <div className="flex items-center gap-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition hover:bg-white/10">
+                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
                   <Heart size={16} />
                 </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition hover:bg-white/10">
+                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
                   <Share2 size={16} />
                 </button>
               </div>
@@ -300,7 +296,7 @@ export default function HomePage() {
             window.open('https://line.me/R/ti/p/@372vxxca', '_blank');
           }
         }}
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition duration-300 hover:scale-110 hover:bg-green-600 sm:bottom-6"
+        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-[0_12px_35px_rgba(34,197,94,0.28)] transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:bg-green-600 hover:shadow-[0_16px_40px_rgba(34,197,94,0.35)] sm:bottom-6"
         title="Chat with us on LINE"
       >
         <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
@@ -317,7 +313,7 @@ function Divider() {
 
 function FilterField({ label, value }: { label: string; value: string }) {
   return (
-    <button className="flex flex-col items-start rounded-full px-5 py-1.5 text-left hover:bg-white/10 transition-all">
+    <button className="flex flex-col items-start rounded-full px-5 py-1.5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.14)]">
       <span className="text-[10px] text-white/50">{label}</span>
       <span className="text-sm font-medium text-white">{value}</span>
     </button>
@@ -336,10 +332,10 @@ function SideIcon({
   return (
     <button
       onClick={onClick}
-      className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+      className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
         active
-          ? 'bg-white text-[#141824] shadow-md'
-          : 'text-white/70 hover:bg-white/15 hover:text-white'
+          ? 'bg-white text-[#141824] shadow-[0_10px_24px_rgba(255,255,255,0.18)]'
+          : 'text-white/70 hover:bg-white/15 hover:text-white hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)]'
       }`}
     >
       {children}
