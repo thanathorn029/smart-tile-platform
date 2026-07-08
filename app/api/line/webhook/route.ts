@@ -38,24 +38,38 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Webhook error:', error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Webhook error:', message, error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 }
     );
   }
 }
 
-async function handleEvent(event: any) {
-  const { type, replyToken, message, source } = event;
+async function handleEvent(event: unknown) {
+  if (typeof event !== 'object' || event === null) return;
+  const eventData = event as Record<string, unknown>;
+  const type = eventData.type as string | undefined;
+  const message = eventData.message as Record<string, unknown> | undefined;
+  const source = eventData.source as Record<string, unknown> | undefined;
 
   if (type === 'message' && message?.type === 'text') {
-    await handleTextMessage(message.text, source?.userId || '');
+    const text = message.text as string | undefined;
+    const userId = source?.userId as string | undefined;
+    if (text && userId) {
+      await handleTextMessage(text, userId);
+    }
   }
 
   if (type === 'postback') {
-    await handlePostback(event.postback?.data, source?.userId || '');
+    const postback = eventData.postback as Record<string, unknown> | undefined;
+    const data = postback?.data as string | undefined;
+    const userId = source?.userId as string | undefined;
+    if (data && userId) {
+      await handlePostback(data, userId);
+    }
   }
 }
 

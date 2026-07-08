@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import AuthGuard from '@/app/components/AuthGuard';
 import { supabase } from '@/app/utils/supabase';
 
@@ -88,7 +89,13 @@ export default function PromotionsPage() {
             {promotions.map((promo) => (
               <div key={promo.id} className="overflow-hidden rounded-[2rem] border border-white/10 bg-black/20 shadow-xl">
                 <div className="relative h-64 overflow-hidden">
-                  <img src={promo.image_url} alt={promo.name} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+                  <Image
+                    src={promo.image_url}
+                    alt={promo.name}
+                    fill
+                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute left-4 top-4 rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg">{promo.discount_badge}</div>
                 </div>

@@ -27,3 +27,12 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Hides scrollbar on horizontally-scrollable filter chips (mobile top bar) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

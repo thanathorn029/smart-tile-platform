@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const Icon = ({
   children,
@@ -19,14 +19,14 @@ const Icon = ({
 );
 
 const Calculator = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <path d="M8 7h8M8 11h8M8 15h8" />
   </Icon>
 );
 
 const LayoutGrid = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <rect x="3" y="3" width="8" height="8" />
     <rect x="13" y="3" width="8" height="8" />
     <rect x="3" y="13" width="8" height="8" />
@@ -35,38 +35,58 @@ const LayoutGrid = (props: { size?: number; strokeWidth?: number; style?: React.
 );
 
 const PanelTop = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <rect x="3" y="3" width="18" height="4" rx="1" />
     <rect x="3" y="9" width="14" height="12" rx="1" />
   </Icon>
 );
 
 const Package = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4.03a2 2 0 0 0-2 0l-7 4.03A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4.03a2 2 0 0 0 2 0l7-4.03A2 2 0 0 0 21 16z" />
     <path d="M16 3.13v4.07M8 3.13v4.07" />
   </Icon>
 );
 
 const Layers = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <path d="M12 3 4 7.5l8 4.5 8-4.5L12 3z" />
     <path d="m4 12.5 8 4.5 8-4.5" />
     <path d="m4 17 8 4.5 8-4.5" />
   </Icon>
 );
 
-const ChevronRight = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
-    <path d="M9 6l6 6-6 6" />
-  </Icon>
-);
-
 const Info = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth} style={props.style}>
+  <Icon {...props}>
     <circle cx="12" cy="12" r="9" />
     <path d="M12 16v-4" />
     <path d="M12 8h.01" />
+  </Icon>
+);
+
+const Ruler = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
+  <Icon {...props}>
+    <path d="M3 17 17 3l4 4L7 21z" />
+    <path d="m14 6 2 2M10.5 9.5l2 2M7 13l2 2" />
+  </Icon>
+);
+
+const Copy = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
+  <Icon {...props}>
+    <rect x="9" y="9" width="12" height="12" rx="2" />
+    <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+  </Icon>
+);
+
+const Check = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
+  <Icon {...props}>
+    <path d="M20 6 9 17l-5-5" />
+  </Icon>
+);
+
+const ChevronUp = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
+  <Icon {...props}>
+    <path d="M18 15 12 9l-6 6" />
   </Icon>
 );
 
@@ -76,7 +96,9 @@ type TileOption = {
   id: string;
   label: string;
   sub: string;
-  coverage: number;
+  coverage: number; // ตร.ม. ต่อกล่องกระเบื้อง
+  notch: string; // ขนาดเกรียงหวีแนะนำ
+  adhesiveCoverage: number; // ตร.ม. ต่อกระสอบปูนกาว (ตามขนาดเกรียงหวี)
 };
 
 type AdhesiveBrand = {
@@ -89,15 +111,15 @@ type AdhesiveBrand = {
 };
 
 const FLOOR_TILES: TileOption[] = [
-  { id: "f40", label: "40 x 40 ซม.", sub: "(16 x 16 นิ้ว)", coverage: 1 },
-  { id: "f30", label: "30 x 30 ซม.", sub: "(12 x 12 นิ้ว)", coverage: 1 },
-  { id: "f60", label: "60 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44 },
+  { id: "f30", label: "30 x 30 ซม.", sub: "(12 x 12 นิ้ว)", coverage: 1, notch: "6 มม.", adhesiveCoverage: 6 },
+  { id: "f40", label: "40 x 40 ซม.", sub: "(16 x 16 นิ้ว)", coverage: 1, notch: "6–8 มม.", adhesiveCoverage: 5 },
+  { id: "f60", label: "60 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", adhesiveCoverage: 4 },
 ];
 
 const WALL_TILES: TileOption[] = [
-  { id: "w1016", label: "10 x 16 ซม.", sub: "", coverage: 1 },
-  { id: "w3045", label: "30 x 45 ซม.", sub: "", coverage: 1 },
-  { id: "w3060", label: "30 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44 },
+  { id: "w1016", label: "10 x 16 ซม.", sub: "", coverage: 1, notch: "6 มม.", adhesiveCoverage: 6 },
+  { id: "w3045", label: "30 x 45 ซม.", sub: "", coverage: 1, notch: "6–8 มม.", adhesiveCoverage: 5 },
+  { id: "w3060", label: "30 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", adhesiveCoverage: 4 },
 ];
 
 const ADHESIVE_BRANDS: AdhesiveBrand[] = [
@@ -118,11 +140,11 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     link: "https://www.cotto.com/product/tile-adhesive",
   },
   {
-    id: "cotto-fast",
-    name: "COTTO Fast",
+    id: "cotto-silver",
+    name: "COTTO Silver",
     tag: "COTTO",
-    color: "#E17055",
-    description: "ปูนกาวแห้งตัวเร็ว เดินเหยียบและยาแนวได้เร็ว เหมาะกับงานเร่งด่วน",
+    color: "#8a8f98",
+    description: "สูตรแรงยึดเกาะสูงพิเศษ ออกแบบมาสำหรับปูทับพื้นผิวเดิมโดยเฉพาะ ห้ามใช้สูตรธรรมดาแทน",
     link: "https://www.cotto.com/product/tile-adhesive",
   },
   {
@@ -145,8 +167,8 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     id: "jorakay-silver",
     name: "จระเข้เงิน",
     tag: "Jorakay",
-    color: "#8a8f98",
-    description: "สำหรับกระเบื้องขนาดใหญ่มาก หินอ่อน หินแกรนิต ช่วยลดปัญหากระเบื้องโก่งตัว",
+    color: "#c7cad1",
+    description: "สำหรับกระเบื้องขนาดใหญ่มาก หินอ่อน หินแกรนิต และงานปูทับกระเบื้องเดิม ช่วยลดปัญหาโก่งตัว",
     link: "https://www.jorakay.co.th/tiling/tile-adhesive",
   },
   {
@@ -154,22 +176,12 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     name: "จระเข้ทอง",
     tag: "Jorakay",
     color: "#D4AF37",
-    description: "เกรดพรีเมียม ยืดหยุ่นสูง ทนทุกสภาพอากาศ ปูทับกระเบื้องเดิมได้ เหมาะสำหรับสระว่ายน้ำ",
+    description: "ปูนขาว ไม่ทำให้โมเสกแก้วหรือหินอ่อนเปลี่ยนสี เกรดพรีเมียม ทนทุกสภาพอากาศ",
     link: "https://xn--12cfjb8g6bl2ezag5e8e9e.com/articles/crocodile-gold-cement-glue/",
-  },
-  {
-    id: "jorakay-extreme",
-    name: "จระเข้เอ็กซ์ตรีม",
-    tag: "Jorakay",
-    color: "#3B3B98",
-    description: "สูตรยืดหยุ่นสูงพิเศษ เหมาะกับงานที่ต้องทนต่ออุณหภูมิและความชื้นสูง",
-    link: "https://www.jorakay.co.th/blog/owner/tiling/what-types-of-crocodile-cement-adhesives-are-good-for-types",
   },
 ];
 
-const GROUT_COVERAGE = 5; // ตร.ม. ต่อถุง
-const ADHESIVE_COVERAGE = 5; // ตร.ม. ต่อกระสอบ
-
+const GROUT_COVERAGE = 5; // ตร.ม. ต่อถุงยาแนว
 const WASTE_OPTIONS = [0, 5, 10];
 
 function round2(n: number) {
@@ -182,20 +194,29 @@ export default function TileMaterialCalculator() {
   const [tileId, setTileId] = useState<string>(FLOOR_TILES[0].id);
   const [waste, setWaste] = useState<number>(10);
   const [overlay, setOverlay] = useState<boolean>(false);
+  const [copied, setCopied] = useState(false);
+
+  const resultRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(t);
+  }, [copied]);
 
   const tiles = surfaceType === "floor" ? FLOOR_TILES : WALL_TILES;
   const activeTile = tiles.find((t) => t.id === tileId) ?? tiles[0];
 
   const effectiveArea = useMemo(() => {
     const a = Number(area) || 0;
-    return a * (1 + waste / 100);
+    return Math.max(0, a) * (1 + waste / 100);
   }, [area, waste]);
 
   const results = useMemo(() => {
     const a = effectiveArea;
     return {
       boxes: Math.ceil(a / activeTile.coverage),
-      adhesiveBags: Math.ceil(a / ADHESIVE_COVERAGE),
+      adhesiveBags: Math.ceil(a / activeTile.adhesiveCoverage),
       groutBags: Math.ceil(a / GROUT_COVERAGE),
     };
   }, [effectiveArea, activeTile]);
@@ -203,48 +224,48 @@ export default function TileMaterialCalculator() {
   const recommendedAdhesive = useMemo(() => {
     if (overlay) {
       const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-premium") ?? ADHESIVE_BRANDS[1],
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-gold") ?? ADHESIVE_BRANDS[6],
+        ADHESIVE_BRANDS.find((b) => b.id === "cotto-silver")!,
+        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-silver")!,
       ];
       return {
         brands,
         title: "งานปูทับกระเบื้องเดิม",
-        detail: "แนะนำ COTTO Premium และ จระเข้ทอง สำหรับงานปูทับที่ต้องการแรงยึดเกาะและความยืดหยุ่น",
+        detail: "ห้ามใช้ปูนกาวสูตรธรรมดา แนะนำ COTTO Silver และจระเข้เงิน เพราะให้แรงยึดเกาะสูงพอสำหรับปูทับพื้นผิวเดิม",
       };
     }
 
     if (surfaceType === "wall") {
       const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard") ?? ADHESIVE_BRANDS[0],
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green") ?? ADHESIVE_BRANDS[3],
+        ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard")!,
+        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green")!,
       ];
       return {
         brands,
-        title: "ผนังและงานภายในอาคาร แนะนำ",
-        detail: "แนะนำทั้ง COTTO Standard และ จระเข้เขียว ใช้คู่กันได้ดีในงานผนังภายในอาคาร",
+        title: "ผนังและงานภายในอาคาร",
+        detail: "แนะนำทั้ง COTTO Standard และจระเข้เขียว ใช้คู่กันได้ดีในงานผนังภายในอาคาร",
       };
     }
 
     if (activeTile.id === "f60") {
       const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-premium") ?? ADHESIVE_BRANDS[1],
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-red") ?? ADHESIVE_BRANDS[4],
+        ADHESIVE_BRANDS.find((b) => b.id === "cotto-premium")!,
+        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-red")!,
       ];
       return {
         brands,
-        title: "กระเบื้องพื้นขนาดใหญ่ แนะนำ",
-        detail: "แนะนำทั้ง COTTO Premium และ จระเข้แดง ในงานพื้นกระเบื้องขนาดใหญ่และพื้นที่รับแรงสูง",
+        title: "กระเบื้องพื้นขนาดใหญ่",
+        detail: "แนะนำทั้ง COTTO Premium และจระเข้แดง สำหรับงานพื้นกระเบื้องขนาดใหญ่และพื้นที่รับแรงสูง",
       };
     }
 
     const brands = [
-      ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard") ?? ADHESIVE_BRANDS[0],
-      ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green") ?? ADHESIVE_BRANDS[3],
+      ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard")!,
+      ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green")!,
     ];
     return {
       brands,
-      title: "งานพื้นทั่วไป แนะนำ",
-      detail: "แนะนำทั้ง COTTO Standard และ จระเข้เขียว สำหรับงานพื้นทั่วไป ทั้งความคุ้มค่าและความเสถียร",
+      title: "งานพื้นทั่วไป",
+      detail: "แนะนำทั้ง COTTO Standard และจระเข้เขียว สำหรับงานพื้นทั่วไป คุ้มค่าและเสถียร",
     };
   }, [overlay, surfaceType, activeTile]);
 
@@ -252,6 +273,35 @@ export default function TileMaterialCalculator() {
     setSurfaceType(type);
     const list = type === "floor" ? FLOOR_TILES : WALL_TILES;
     setTileId(list[0].id);
+  }
+
+  function adjustArea(delta: number) {
+    setArea((prev) => {
+      const next = round2(Math.max(0, (Number(prev) || 0) + delta));
+      return next;
+    });
+  }
+
+  function scrollToResult() {
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function copySummary() {
+    const lines = [
+      `สรุปวัสดุปูกระเบื้อง (${surfaceType === "floor" ? "พื้น" : "ผนัง"} ${activeTile.label})`,
+      `พื้นที่: ${round2(Number(area) || 0)} ตร.ม.${waste > 0 ? ` (เผื่อเสีย +${waste}% = ${round2(effectiveArea)} ตร.ม.)` : ""}`,
+      `กระเบื้อง: ${results.boxes} กล่อง`,
+      `ปูนกาว: ${results.adhesiveBags} กระสอบ (${recommendedAdhesive.brands.map((b) => b.name).join(" / ")})`,
+      `ยาแนว: ${results.groutBags} ถุง`,
+      `เกรียงหวีแนะนำ: ${activeTile.notch}`,
+    ];
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   }
 
   return (
@@ -268,11 +318,28 @@ export default function TileMaterialCalculator() {
           border-radius: 20px;
         }
         .dtc-input:focus { outline: none; border-color: #ED1B2E; box-shadow: 0 0 0 3px rgba(237,27,46,0.25); }
-        .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn { transition: all 0.15s ease; cursor: pointer; }
+        .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn, .dtc-mobile-bar {
+          transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          cursor: pointer;
+        }
         .dtc-tile-card:hover, .dtc-brand-card:hover { border-color: rgba(237,27,46,0.5) !important; }
+        button:focus-visible, .dtc-tile-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(237,27,46,0.4); }
+        .dtc-toggle-btn:active, .dtc-waste-btn:active, .dtc-tile-card:active, .dtc-step-btn:active, .dtc-copy-btn:active {
+          transform: scale(0.96);
+        }
+        .dtc-card-enter { animation: dtcFadeUp 0.4s ease both; }
+        @keyframes dtcFadeUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .dtc-card-enter { animation: none; }
+          .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn { transition: none; }
+        }
         .dtc-grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.75fr) 380px; align-items: start; }
         .dtc-tile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .dtc-brand-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .dtc-mobile-bar { display: none; }
         @media (max-width: 980px) {
           .dtc-grid { grid-template-columns: 1fr; }
           .dtc-right-col { position: static !important; top: auto !important; }
@@ -280,41 +347,54 @@ export default function TileMaterialCalculator() {
           .dtc-brand-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 650px) {
-          .dtc-grid { gap: 16px; }
+          .dtc-grid { gap: 14px; }
           .dtc-tile-grid { grid-template-columns: 1fr; }
           .dtc-brand-grid { grid-template-columns: 1fr; }
-          .dtc-toggle-btn, .dtc-waste-btn, .dtc-tile-card, .dtc-brand-card { font-size: 13px; }
-          .dtc-brand-card { flex-direction: column; align-items: stretch; }
-          .dtc-root { padding: 0 12px; }
+          .dtc-root { padding: 0 4px 84px; }
+          .dtc-mobile-bar {
+            display: flex;
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: 14px;
+            z-index: 30;
+          }
         }
         input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+        input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
       <div className="dtc-root" style={styles.container}>
-        {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.logoBadge}>DoM</div>
-          <div>
-            <div className="dtc-heading" style={styles.title}>เครื่องคำนวณวัสดุปูกระเบื้อง</div>
-            <div style={styles.subtitle}>Smart Tile Platform · ดิวะ</div>
-          </div>
+
+        {/* Step indicator */}
+        <div style={styles.stepsRow}>
+          {[
+            { n: 1, label: "พื้นผิว" },
+            { n: 2, label: "พื้นที่" },
+            { n: 3, label: "ขนาด" },
+            { n: 4, label: "ปูนกาว" },
+          ].map((s, i) => (
+            <React.Fragment key={s.n}>
+              <div style={styles.stepItem}>
+                <div style={styles.stepCircle}>{s.n}</div>
+                <span style={styles.stepLabel}>{s.label}</span>
+              </div>
+              {i < 3 && <div style={styles.stepLine} />}
+            </React.Fragment>
+          ))}
         </div>
 
-        <div style={styles.grid}>
+        <div className="dtc-grid" style={styles.grid}>
           {/* Left column: inputs */}
           <div style={styles.leftCol}>
-
             {/* Surface type */}
-            <div className="dtc-glass" style={styles.card}>
-              <SectionLabel icon={<Layers size={16} />} text="ประเภทพื้นผิว" />
+            <div className="dtc-glass dtc-card-enter" style={styles.card}>
+              <SectionLabel icon={<Layers size={16} />} text="1. ประเภทพื้นผิว" />
               <div style={styles.toggleRow}>
                 <button
                   className="dtc-toggle-btn"
                   onClick={() => handleSurfaceChange("floor")}
-                  style={{
-                    ...styles.toggleBtn,
-                    ...(surfaceType === "floor" ? styles.toggleBtnActive : {}),
-                  }}
+                  style={{ ...styles.toggleBtn, ...(surfaceType === "floor" ? styles.toggleBtnActive : {}) }}
                 >
                   <LayoutGrid size={18} />
                   พื้น
@@ -322,10 +402,7 @@ export default function TileMaterialCalculator() {
                 <button
                   className="dtc-toggle-btn"
                   onClick={() => handleSurfaceChange("wall")}
-                  style={{
-                    ...styles.toggleBtn,
-                    ...(surfaceType === "wall" ? styles.toggleBtnActive : {}),
-                  }}
+                  style={{ ...styles.toggleBtn, ...(surfaceType === "wall" ? styles.toggleBtnActive : {}) }}
                 >
                   <PanelTop size={18} />
                   ผนัง
@@ -334,18 +411,37 @@ export default function TileMaterialCalculator() {
             </div>
 
             {/* Area input */}
-            <div className="dtc-glass" style={styles.card}>
-              <SectionLabel icon={<Calculator size={16} />} text="พื้นที่ที่ต้องการปู" />
+            <div className="dtc-glass dtc-card-enter" style={styles.card}>
+              <SectionLabel icon={<Calculator size={16} />} text="2. พื้นที่ที่ต้องการปู" />
               <div style={styles.areaInputRow}>
+                <button
+                  type="button"
+                  className="dtc-step-btn"
+                  aria-label="ลดพื้นที่ 1 ตารางเมตร"
+                  onClick={() => adjustArea(-1)}
+                  style={styles.stepBtn}
+                >
+                  −
+                </button>
                 <input
                   className="dtc-input"
                   type="number"
+                  inputMode="decimal"
                   min="0"
                   step="0.5"
                   value={area}
                   onChange={(e) => setArea(Number(e.target.value))}
                   style={styles.areaInput}
                 />
+                <button
+                  type="button"
+                  className="dtc-step-btn"
+                  aria-label="เพิ่มพื้นที่ 1 ตารางเมตร"
+                  onClick={() => adjustArea(1)}
+                  style={styles.stepBtn}
+                >
+                  +
+                </button>
                 <span style={styles.areaUnit}>ตร.ม.</span>
               </div>
 
@@ -357,10 +453,7 @@ export default function TileMaterialCalculator() {
                       key={w}
                       className="dtc-waste-btn"
                       onClick={() => setWaste(w)}
-                      style={{
-                        ...styles.wasteBtn,
-                        ...(waste === w ? styles.wasteBtnActive : {}),
-                      }}
+                      style={{ ...styles.wasteBtn, ...(waste === w ? styles.wasteBtnActive : {}) }}
                     >
                       {w === 0 ? "ไม่เผื่อ" : `+${w}%`}
                     </button>
@@ -370,60 +463,56 @@ export default function TileMaterialCalculator() {
             </div>
 
             {/* Overlay option */}
-            <div className="dtc-glass" style={styles.card}>
-              <SectionLabel icon={<Package size={16} />} text="ปูทับกระเบื้องเดิม" />
+            <div className="dtc-glass dtc-card-enter" style={styles.card}>
+              <SectionLabel icon={<Package size={16} />} text="ปูทับกระเบื้องเดิมหรือไม่" />
               <div style={styles.toggleRow}>
                 <button
                   className="dtc-toggle-btn"
                   onClick={() => setOverlay(false)}
-                  style={{
-                    ...styles.toggleBtn,
-                    ...(!overlay ? styles.toggleBtnActive : {}),
-                  }}
+                  style={{ ...styles.toggleBtn, ...(!overlay ? styles.toggleBtnActive : {}) }}
                 >
                   ปูใหม่
                 </button>
                 <button
                   className="dtc-toggle-btn"
                   onClick={() => setOverlay(true)}
-                  style={{
-                    ...styles.toggleBtn,
-                    ...(overlay ? styles.toggleBtnActive : {}),
-                  }}
+                  style={{ ...styles.toggleBtn, ...(overlay ? styles.toggleBtnActive : {}) }}
                 >
-                  ปูทับ
+                  ปูทับของเดิม
                 </button>
               </div>
             </div>
 
             {/* Tile size selection */}
-            <div className="dtc-glass" style={styles.card}>
-              <SectionLabel icon={<LayoutGrid size={16} />} text={`ขนาดกระเบื้อง${surfaceType === "floor" ? "พื้น" : "ผนัง"}`} />
+            <div className="dtc-glass dtc-card-enter" style={styles.card}>
+              <SectionLabel icon={<LayoutGrid size={16} />} text={`3. ขนาดกระเบื้อง${surfaceType === "floor" ? "พื้น" : "ผนัง"}`} />
               <div className="dtc-tile-grid" style={styles.tileGrid}>
                 {tiles.map((t) => (
                   <div
                     key={t.id}
                     className="dtc-tile-card"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setTileId(t.id)}
-                    style={{
-                      ...styles.tileCard,
-                      ...(tileId === t.id ? styles.tileCardActive : {}),
-                    }}
+                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setTileId(t.id)}
+                    style={{ ...styles.tileCard, ...(tileId === t.id ? styles.tileCardActive : {}) }}
                   >
                     <div style={styles.tileSize}>{t.label}</div>
                     {t.sub && <div style={styles.tileSub}>{t.sub}</div>}
-                    <div style={styles.tileCoverage}>
-                      ปูได้ {t.coverage} ตร.ม./กล่อง
-                    </div>
+                    <div style={styles.tileCoverage}>ปูได้ {t.coverage} ตร.ม./กล่อง</div>
                   </div>
                 ))}
+              </div>
+              <div style={styles.notchHint}>
+                <Ruler size={13} style={{ opacity: 0.7, flexShrink: 0 }} />
+                <span>เกรียงหวีแนะนำสำหรับขนาดนี้: <b style={{ color: "#fff" }}>{activeTile.notch}</b></span>
               </div>
             </div>
 
             {/* Adhesive brand */}
-            <div className="dtc-glass" style={styles.card}>
-              <SectionLabel icon={<Package size={16} />} text="ยี่ห้อปูนกาว" />
-              <div style={styles.notePill}>ระบบเลือกทั้ง 2 ยี่ห้อให้โดยอัตโนมัติ</div>
+            <div className="dtc-glass dtc-card-enter" style={styles.card}>
+              <SectionLabel icon={<Package size={16} />} text="4. ยี่ห้อปูนกาวที่แนะนำ" />
+              <div style={styles.notePill}>ระบบเลือกให้อัตโนมัติตามหน้างาน</div>
               <div className="dtc-brand-grid" style={styles.recommendedBrandRow}>
                 {recommendedAdhesive.brands.map((brand) => (
                   <div key={brand.id} className="dtc-brand-card" style={styles.recommendedBrandCard}>
@@ -439,39 +528,33 @@ export default function TileMaterialCalculator() {
               <div style={styles.hintRow}>
                 <Info size={13} style={{ opacity: 0.6, flexShrink: 0 }} />
                 <div>
-                  <div style={styles.hintText}>ปูนกาว 1 กระสอบ ปูได้ {ADHESIVE_COVERAGE} ตร.ม. · ยาแนว 1 ถุง ปูได้ {GROUT_COVERAGE} ตร.ม.</div>
-                  <div style={styles.brandDescription}>เลือกปูนกาวอัตโนมัติตามงาน ไม่ต้องเลือกเอง</div>
+                  <div style={styles.hintText}>
+                    ปูนกาว 1 กระสอบ ปูได้ {activeTile.adhesiveCoverage} ตร.ม. ด้วยเกรียงหวี {activeTile.notch} · ยาแนว 1 ถุง ปูได้ {GROUT_COVERAGE} ตร.ม.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right column: results */}
-          <div className="dtc-right-col" style={styles.rightCol}>
-            <div className="dtc-glass" style={styles.resultCard}>
+          <div className="dtc-right-col" style={styles.rightCol} ref={resultRef}>
+            <div className="dtc-glass dtc-card-enter" style={styles.resultCard}>
               <div style={styles.resultHeader}>
                 <div className="dtc-heading" style={styles.resultTitle}>สรุปวัสดุที่ต้องใช้</div>
                 <div style={styles.resultArea}>
-                  {round2(effectiveArea)} ตร.ม. {waste > 0 && <span style={styles.resultAreaBase}>(รวมเผื่อเสีย จาก {round2(Number(area) || 0)})</span>}
+                  {round2(effectiveArea)} ตร.ม.{" "}
+                  {waste > 0 && <span style={styles.resultAreaBase}>(รวมเผื่อเสีย จาก {round2(Number(area) || 0)})</span>}
                 </div>
               </div>
 
+              <ResultRow label={`กระเบื้อง ${activeTile.label}`} value={results.boxes} unit="กล่อง" />
               <ResultRow
-                label={`กระเบื้อง ${activeTile.label}`}
-                value={results.boxes}
-                unit="กล่อง"
-              />
-              <ResultRow
-                label="ปูนกาว (COTTO + จระเข้)"
+                label="ปูนกาว"
                 value={results.adhesiveBags}
                 unit="กระสอบ"
                 accent={recommendedAdhesive.brands[0].color}
               />
-              <ResultRow
-                label="ยาแนว"
-                value={results.groutBags}
-                unit="ถุง"
-              />
+              <ResultRow label="ยาแนว" value={results.groutBags} unit="ถุง" />
 
               <div style={styles.recommendationBox}>
                 <div style={styles.recommendationTitle}>{recommendedAdhesive.title}</div>
@@ -485,11 +568,40 @@ export default function TileMaterialCalculator() {
                 </div>
               </div>
 
+              <button className="dtc-copy-btn" onClick={copySummary} style={styles.copyBtn}>
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? "คัดลอกแล้ว" : "คัดลอกสรุปเพื่อส่งให้ลูกค้า"}
+              </button>
+
               <div style={styles.disclaimer}>
                 ตัวเลขเป็นการประมาณการเบื้องต้น ปริมาณจริงอาจแตกต่างกันตามลวดลาย รอยต่อ และหน้างานจริง
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile sticky summary bar */}
+      <div className="dtc-mobile-bar" style={styles.mobileBar} onClick={scrollToResult} role="button" tabIndex={0}>
+        <div style={styles.mobileBarStats}>
+          <div style={styles.mobileBarStat}>
+            <span style={styles.mobileBarNum}>{results.boxes}</span>
+            <span style={styles.mobileBarUnit}>กล่อง</span>
+          </div>
+          <div style={styles.mobileBarDivider} />
+          <div style={styles.mobileBarStat}>
+            <span style={styles.mobileBarNum}>{results.adhesiveBags}</span>
+            <span style={styles.mobileBarUnit}>ปูนกาว</span>
+          </div>
+          <div style={styles.mobileBarDivider} />
+          <div style={styles.mobileBarStat}>
+            <span style={styles.mobileBarNum}>{results.groutBags}</span>
+            <span style={styles.mobileBarUnit}>ยาแนว</span>
+          </div>
+        </div>
+        <div style={styles.mobileBarAction}>
+          ดูรายละเอียด
+          <ChevronUp size={16} />
         </div>
       </div>
     </div>
@@ -505,17 +617,7 @@ function SectionLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
-function ResultRow({
-  label,
-  value,
-  unit,
-  accent,
-}: {
-  label: string;
-  value: number;
-  unit: string;
-  accent?: string;
-}) {
+function ResultRow({ label, value, unit, accent }: { label: string; value: number; unit: string; accent?: string }) {
   return (
     <div style={styles.resultRow}>
       <span style={styles.resultRowLabel}>{label}</span>
@@ -536,12 +638,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "40px 20px",
   },
   container: { maxWidth: 980, margin: "0 auto" },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    marginBottom: 28,
-  },
+  header: { display: "flex", alignItems: "center", gap: 16, marginBottom: 22 },
   logoBadge: {
     width: 52,
     height: 52,
@@ -556,15 +653,28 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 16,
     letterSpacing: 0.5,
     boxShadow: `0 8px 24px ${RED}44`,
+    flexShrink: 0,
   },
   title: { color: "#fff", fontSize: 22, fontWeight: 600 },
   subtitle: { color: "#8a8f98", fontSize: 13, marginTop: 2 },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1.35fr 1fr",
-    gap: 20,
-    alignItems: "start",
+  stepsRow: { display: "flex", alignItems: "center", marginBottom: 22, padding: "0 4px" },
+  stepItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 44 },
+  stepCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.14)",
+    color: "#c7cad1",
+    fontSize: 12,
+    fontWeight: 600,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
+  stepLabel: { color: "#767b85", fontSize: 10.5 },
+  stepLine: { flex: 1, height: 1, background: "rgba(255,255,255,0.1)", margin: "0 4px 18px" },
+  grid: { display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: 20, alignItems: "start" },
   leftCol: { display: "flex", flexDirection: "column", gap: 16 },
   rightCol: { position: "sticky", top: 20 },
   card: { padding: "18px 20px" },
@@ -586,23 +696,35 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    padding: "12px 0",
-    borderWidth: "1px",
+    padding: "13px 0",
+    minHeight: 48,
+    borderWidth: 1,
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
     color: "#c7cad1",
     fontSize: 15,
     fontWeight: 500,
+    borderRadius: 12,
   },
   toggleBtnActive: {
     background: `linear-gradient(135deg, ${RED}, #a80f1d)`,
-    borderWidth: "1px",
-    borderStyle: "solid",
     borderColor: RED,
     color: "#fff",
   },
-  areaInputRow: { display: "flex", alignItems: "center", gap: 12 },
+  areaInputRow: { display: "flex", alignItems: "center", gap: 8 },
+  stepBtn: {
+    width: 44,
+    height: 44,
+    flexShrink: 0,
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.04)",
+    color: "#fff",
+    fontSize: 20,
+    lineHeight: 1,
+    fontWeight: 500,
+  },
   areaInput: {
     flex: 1,
     background: "rgba(255,255,255,0.04)",
@@ -613,43 +735,49 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     padding: "10px 14px",
     width: "100%",
+    textAlign: "center",
   },
   areaUnit: { color: "#8a8f98", fontSize: 14, minWidth: 40 },
   wasteLabel: { color: "#8a8f98", fontSize: 12.5, marginBottom: 8 },
   wasteBtn: {
     flex: 1,
-    padding: "8px 0",
+    padding: "10px 0",
+    minHeight: 40,
     borderRadius: 10,
-    borderWidth: "1px",
+    borderWidth: 1,
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
     color: "#c7cad1",
     fontSize: 13,
   },
-  wasteBtnActive: {
-    background: "rgba(237,27,46,0.18)",
-    borderColor: RED,
-    color: "#ff8891",
-  },
+  wasteBtnActive: { background: "rgba(237,27,46,0.18)", borderColor: RED, color: "#ff8891" },
   tileGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 },
   tileCard: {
-    borderWidth: "1px",
+    borderWidth: 1,
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
     borderRadius: 12,
-    padding: "12px 10px",
+    padding: "14px 10px",
     textAlign: "center",
+    minHeight: 76,
   },
-  tileCardActive: {
-    borderColor: RED,
-    background: "rgba(237,27,46,0.14)",
-  },
+  tileCardActive: { borderColor: RED, background: "rgba(237,27,46,0.14)" },
   tileSize: { color: "#fff", fontSize: 14, fontWeight: 600 },
   tileSub: { color: "#8a8f98", fontSize: 10.5, marginTop: 2 },
   tileCoverage: { color: "#8a8f98", fontSize: 11, marginTop: 6 },
-  brandRow: { display: "flex", gap: 10 },
+  notchHint: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 14,
+    padding: "10px 12px",
+    borderRadius: 10,
+    background: "rgba(255,255,255,0.04)",
+    color: "#9aa0ac",
+    fontSize: 12,
+  },
   notePill: {
     display: "inline-flex",
     alignItems: "center",
@@ -662,23 +790,19 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     marginBottom: 14,
   },
-  recommendedBrandRow: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-  },
+  recommendedBrandRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
   recommendedBrandCard: {
     display: "flex",
     alignItems: "flex-start",
     gap: 10,
-    borderWidth: "1px",
+    borderWidth: 1,
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
     borderRadius: 14,
     padding: "14px 16px",
   },
-  brandDot: { width: 12, height: 12, borderRadius: "50%", flexShrink: 0 },
+  brandDot: { width: 12, height: 12, borderRadius: "50%", flexShrink: 0, marginTop: 3 },
   brandName: { color: "#fff", fontSize: 14, fontWeight: 600 },
   brandTag: { color: "#8a8f98", fontSize: 10.5, letterSpacing: 0.5 },
   hintRow: { display: "flex", gap: 6, marginTop: 12, alignItems: "flex-start" },
@@ -694,28 +818,13 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 16px",
     borderRadius: 14,
     background: "rgba(255,255,255,0.06)",
-    borderWidth: "1px",
+    borderWidth: 1,
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.08)",
   },
-  recommendationTitle: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: 600,
-    marginBottom: 6,
-  },
-  recommendationText: {
-    color: "#c7cad1",
-    fontSize: 13,
-    lineHeight: 1.6,
-    marginBottom: 10,
-  },
-  recommendationList: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 10,
-    marginTop: 10,
-  },
+  recommendationTitle: { color: "#fff", fontSize: 14, fontWeight: 600, marginBottom: 6 },
+  recommendationText: { color: "#c7cad1", fontSize: 13, lineHeight: 1.6, marginBottom: 10 },
+  recommendationList: { display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 },
   recommendationBadge: {
     display: "inline-block",
     padding: "6px 10px",
@@ -735,5 +844,47 @@ const styles: Record<string, React.CSSProperties> = {
   resultRowLabel: { color: "#c7cad1", fontSize: 13.5 },
   resultRowValue: { fontSize: 20, fontWeight: 700 },
   resultRowUnit: { fontSize: 12, fontWeight: 400, color: "#8a8f98" },
+  copyBtn: {
+    width: "100%",
+    marginTop: 16,
+    padding: "13px 0",
+    minHeight: 46,
+    borderRadius: 12,
+    border: `1px solid ${RED}66`,
+    background: "rgba(237,27,46,0.12)",
+    color: "#ff8891",
+    fontSize: 13.5,
+    fontWeight: 600,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
   disclaimer: { color: "#5f636b", fontSize: 11, lineHeight: 1.6, marginTop: 16 },
+  mobileBar: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "12px 16px",
+    borderRadius: 18,
+    background: "rgba(20,22,26,0.92)",
+    border: "1px solid rgba(255,255,255,0.12)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+  },
+  mobileBarStats: { display: "flex", alignItems: "center", gap: 10 },
+  mobileBarStat: { display: "flex", flexDirection: "column", alignItems: "center", minWidth: 44 },
+  mobileBarNum: { color: "#fff", fontSize: 16, fontWeight: 700, lineHeight: 1.1 },
+  mobileBarUnit: { color: "#8a8f98", fontSize: 10 },
+  mobileBarDivider: { width: 1, height: 24, background: "rgba(255,255,255,0.12)" },
+  mobileBarAction: {
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+    color: RED,
+    fontSize: 12.5,
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+  },
 };

@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase';
-import AuthGuard from '@/app/components/AuthGuard';
 import ProtectedLink from '@/app/components/ProtectedLink';
 
 export default function DashboardPage() {

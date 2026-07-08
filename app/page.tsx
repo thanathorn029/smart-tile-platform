@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/app/utils/supabase';
+
 // Lightweight inline icon components to avoid dependency on `lucide-react`
 function Icon({ children, size = 16, strokeWidth = 2 }: { children: React.ReactNode; size?: number; strokeWidth?: number }) {
   return (
@@ -15,12 +16,6 @@ function Icon({ children, size = 16, strokeWidth = 2 }: { children: React.ReactN
 const Home = (props: { size?: number; strokeWidth?: number }) => (
   <Icon size={props.size} strokeWidth={props.strokeWidth}>
     <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" />
-  </Icon>
-);
-const Search = (props: { size?: number; strokeWidth?: number }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth}>
-    <circle cx="11" cy="11" r="6" />
-    <path d="M21 21l-4.35-4.35" />
   </Icon>
 );
 const LayoutGrid = (props: { size?: number; strokeWidth?: number }) => (
@@ -39,7 +34,7 @@ const Bell = (props: { size?: number; strokeWidth?: number }) => (
 );
 const Heart = (props: { size?: number; strokeWidth?: number }) => (
   <Icon size={props.size} strokeWidth={props.strokeWidth}>
-    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l7.8-7.6a5.5 5.5 0 0 0 .0-7.8z" />
+    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l7.8-7.6a5.5 5.5 0 0 0 0-7.8z" />
   </Icon>
 );
 const Share2 = (props: { size?: number; strokeWidth?: number }) => (
@@ -57,17 +52,10 @@ const ArrowUpRight = (props: { size?: number; strokeWidth?: number }) => (
     <path d="M7 7h10v10" />
   </Icon>
 );
-
 const Calculator = (props: { size?: number; strokeWidth?: number }) => (
   <Icon size={props.size} strokeWidth={props.strokeWidth}>
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <path d="M8 7h8M8 11h8M8 15h8" />
-  </Icon>
-);
-const Chart = (props: { size?: number; strokeWidth?: number }) => (
-  <Icon size={props.size} strokeWidth={props.strokeWidth}>
-    <path d="M3 3v18h18" />
-    <path d="M7 14v4M12 10v8M17 6v12" />
   </Icon>
 );
 const User = (props: { size?: number; strokeWidth?: number }) => (
@@ -83,12 +71,10 @@ const Megaphone = (props: { size?: number; strokeWidth?: number }) => (
 );
 
 /**
- * Recreation of the "New Way Of Living" property hero UI.
- * - Full-bleed dusk villa background
- * - Floating pill top bar (Buy/Rent segmented + filters)
- * - Floating pill left sidebar nav with avatar
- * - Bottom-left glass stat card ("Find The Perfect Place")
- * - Bottom-right glass listing card ("Lunar Oasis Villa")
+ * Smart Tile Platform (DoM ดิวะ) — homepage
+ * Dohome Red brand identity, dark glassmorphism, tile/grout motif.
+ * Optimized for mobile: scrollable filter chips, safe-area aware fixed
+ * elements, single accent palette, larger touch targets.
  */
 
 export default function HomePage() {
@@ -118,7 +104,8 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#0b0d12] font-sans text-white">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#07090d] font-sans text-white">
+      {/* Background image + brand-tinted gradient wash */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -126,28 +113,40 @@ export default function HomePage() {
             "url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=2400&q=80')",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1b2340]/75 via-[#0b0d12]/20 to-[#0b0d12]/85" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#2b0d10]/80 via-[#07090d]/35 to-[#07090d]/92" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/25" />
+      {/* Signature: faint tile-grout seam grid tying the background to the product */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+        }}
+      />
+      <div className="pointer-events-none absolute -top-24 right-[-10%] h-72 w-72 rounded-full bg-[#ED1B2E]/25 blur-[100px] sm:h-96 sm:w-96" />
 
-      <header className="relative z-30 mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 pt-4 sm:px-6 sm:pt-8">
-        <div className="flex flex-1 flex-col gap-3 rounded-full border border-white/20 bg-white/12 p-3 shadow-[0_14px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <FilterField label="ประเภทกระเบื้อง" value="พื้น / ผนัง" />
-            <FilterField label="วัสดุ" value="เซรามิค / หิน" />
-            <FilterField label="งาน" value="ปูกระเบื้องบ้าน" />
+      {/* Top bar */}
+      <header className="relative z-30 mx-auto max-w-6xl px-4 pt-3 sm:px-8 sm:pt-8">
+        <div className="flex flex-col gap-3 rounded-[1.75rem] border border-white/15 bg-white/10 px-4 py-3 shadow-[0_14px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-3">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/80">
+            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">ประเภทกระเบื้อง</span>
+            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">วัสดุ</span>
+            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">งาน</span>
+            <span className="rounded-full bg-white/10 px-3 py-2 text-white">ปูกระเบื้องบ้าน</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-shrink-0 items-center justify-end">
             {userEmail ? (
               <button
                 onClick={handleLogout}
-                className="rounded-full border border-white/20 bg-white/12 px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] active:scale-[0.98] sm:px-5"
+                className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/25 hover:border-[#ED1B2E]/50 active:scale-[0.97]"
               >
-                Logout
+                ออกจากระบบ
               </button>
             ) : (
               <Link
                 href="/login"
-                className="rounded-full border border-white/20 bg-white/12 px-4 py-2.5 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] active:scale-[0.98] sm:px-5"
+                className="rounded-full bg-[#ED1B2E] px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(237,27,46,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ff2c3f] active:scale-[0.97]"
               >
                 Login
               </Link>
@@ -156,7 +155,11 @@ export default function HomePage() {
         </div>
       </header>
 
-      <nav className="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-row items-center gap-2 rounded-full border border-white/20 bg-white/12 p-2 shadow-[0_16px_50px_rgba(0,0,0,0.25)] backdrop-blur-2xl sm:bottom-auto sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:flex-col sm:gap-3 sm:p-3">
+      {/* Bottom nav (mobile) / side nav (desktop) */}
+      <nav
+        className="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-row items-center gap-2 rounded-full border border-white/15 bg-white/10 p-2 shadow-[0_16px_50px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:bottom-auto sm:left-8 sm:top-1/2 sm:-translate-y-1/2 sm:flex-col sm:gap-3 sm:p-3"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+      >
         <SideIcon active>
           <Home size={18} strokeWidth={2} />
         </SideIcon>
@@ -167,10 +170,8 @@ export default function HomePage() {
           <Bell size={18} strokeWidth={2} />
         </SideIcon>
         <div
-          className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
-            userEmail
-              ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg'
-              : 'border border-white/15 text-white/70'
+          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition-all ${
+            userEmail ? 'bg-[#ED1B2E] text-white shadow-lg' : 'border border-white/15 text-white/70'
           }`}
           aria-label="Profile"
         >
@@ -178,27 +179,34 @@ export default function HomePage() {
         </div>
       </nav>
 
+      {/* Pages flyout */}
       <div
-        className={`fixed left-4 top-1/2 z-40 -translate-y-1/2 rounded-2xl border border-white/15 bg-white/12 p-4 shadow-[0_16px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl transition-all duration-300 ease-out sm:left-20 ${
-          showPages ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0 pointer-events-none'
+        className={`fixed left-1/2 bottom-24 z-40 w-[calc(100%-1.5rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-white/15 bg-[#0d0f14]/90 p-4 shadow-[0_16px_50px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all duration-300 ease-out sm:left-20 sm:top-1/2 sm:bottom-auto sm:w-72 sm:max-w-none sm:-translate-y-1/2 sm:translate-x-0 sm:bg-white/10 ${
+          showPages ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0 sm:translate-x-[-12px] sm:translate-y-0'
         }`}
       >
-        <h4 className="mb-3 text-sm font-semibold text-white/80">Pages</h4>
+        <h4 className="mb-3 text-sm font-semibold text-white/80">เมนูหลัก</h4>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {[
-            { href: '/calculator', label: 'Calculator', Icon: Calculator },
-            { href: '/crm', label: 'CRM', Icon: User },
-            { href: '/promotions', label: 'Promotions', Icon: Megaphone },
-          ].map((p) => {
-            const IconComp = p.Icon as any;
+          {(
+            [
+              { href: '/calculator', label: 'คำนวณวัสดุ', Icon: Calculator },
+              { href: '/crm', label: 'CRM', Icon: User },
+              { href: '/promotions', label: 'โปรโมชั่น', Icon: Megaphone },
+            ] as Array<{
+              href: string;
+              label: string;
+              Icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+            }>
+          ).map((p) => {
+            const IconComp = p.Icon;
             return (
               <Link
                 key={p.href}
                 href={p.href}
-                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 hover:shadow-[0_10px_24px_rgba(0,0,0,0.16)]"
+                className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:shadow-[0_10px_24px_rgba(0,0,0,0.2)]"
                 onClick={() => setShowPages(false)}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white/10">
+                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#ED1B2E]/20 text-[#ff5b68]">
                   <IconComp size={16} strokeWidth={2} />
                 </span>
                 <span>{p.label}</span>
@@ -208,55 +216,51 @@ export default function HomePage() {
         </div>
       </div>
 
-      <main className="relative z-20 mx-auto max-w-6xl px-4 pb-24 sm:px-6 sm:pb-8">
-        <div className="mt-10 pl-0 sm:mt-16 sm:pl-16 lg:pl-24">
-          <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.3em] text-white/70 backdrop-blur-xl">
+      <main className="relative z-20 mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 sm:pb-8">
+        <div className="sm:pl-16 lg:pl-24">
+          <div className="inline-flex items-center rounded-full border border-[#ED1B2E]/40 bg-[#ED1B2E]/15 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.25em] text-[#ff8a92] backdrop-blur-xl sm:text-[11px] sm:tracking-[0.3em]">
             Smart Tile Platform
           </div>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="mt-4 text-[2.15rem] font-semibold leading-[1.12] tracking-tight sm:mt-5 sm:text-6xl sm:leading-[1.05] lg:text-7xl">
             ค้นหากระเบื้อง
             <br />
             ที่ใช่ให้บ้านคุณ
           </h1>
-          <p className="mt-5 max-w-md pl-1 text-sm leading-relaxed text-white/70 sm:text-base">
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70 sm:mt-5 sm:text-base">
             คำนวณง่าย ๆ พร้อมแนะนำกระเบื้องจาก COTTO และ จระเข้ ให้ตรงกับงานบ้านคุณ
           </p>
+
+          <Link
+            href="/calculator"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ED1B2E] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(237,27,46,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ff2c3f] active:scale-[0.98] sm:mt-8"
+          >
+            เริ่มคำนวณวัสดุ
+            <ArrowUpRight size={16} />
+          </Link>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="rounded-[2rem] border border-white/15 bg-white/12 p-6 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-7">
-            <h3 className="text-lg font-semibold">คำนวณวัสดุแบบง่าย ๆ</h3>
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="rounded-[1.75rem] border border-white/15 bg-white/10 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.3)] backdrop-blur-2xl sm:rounded-[2rem] sm:p-7">
+            <h3 className="text-base font-semibold sm:text-lg">คำนวณวัสดุแบบง่าย ๆ</h3>
             <p className="mt-2 text-sm leading-relaxed text-white/60">
               วัดพื้นที่ เลือกกระเบื้อง และรู้ปริมาณวัสดุให้ครบในจังหวะเดียว
             </p>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                <div className="text-3xl font-bold">65%</div>
-                <div className="mt-1 text-[11px] text-white/50">ลดเวลาเลือกวัสดุ</div>
-              </div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                <div className="text-3xl font-bold">2 แบรนด์</div>
-                <div className="mt-1 text-[11px] text-white/50">COTTO และ จระเข้</div>
-              </div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                <div className="text-3xl font-bold">รองรับปูทับ</div>
-                <div className="mt-1 text-[11px] text-white/50">สำหรับงานพื้นและผนัง</div>
-              </div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-4">
-                <div className="text-3xl font-bold">มืออาชีพ</div>
-                <div className="mt-1 text-[11px] text-white/50">ออกแบบเพื่อช่างและผู้ช่วยวางแผน</div>
-              </div>
+            <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-3">
+              <StatTile value="65%" label="ลดเวลาเลือกวัสดุ" />
+              <StatTile value="2 แบรนด์" label="COTTO และ จระเข้" />
+              <StatTile value="รองรับปูทับ" label="สำหรับงานพื้นและผนัง" />
+              <StatTile value="มืออาชีพ" label="ออกแบบเพื่อช่างและผู้ช่วยวางแผน" />
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/15 bg-white/12 p-6 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-7">
+          <div className="rounded-[1.75rem] border border-white/15 bg-white/10 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.3)] backdrop-blur-2xl sm:rounded-[2rem] sm:p-7">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-semibold">Tile Style Collection</h3>
+                <h3 className="text-base font-semibold sm:text-lg">Tile Style Collection</h3>
                 <p className="mt-1 text-xs text-white/50">เมทัลสโตน, โมเสก, ลายหินอ่อน</p>
               </div>
-              <button className="rounded-full border border-white/20 p-2 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
+              <button className="flex-shrink-0 rounded-full border border-white/20 p-2 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:border-[#ED1B2E]/40">
                 <ArrowUpRight size={16} />
               </button>
             </div>
@@ -265,21 +269,21 @@ export default function HomePage() {
               แนะนำสไตล์กระเบื้องที่คุมโทนบ้านได้ง่าย เหมาะกับทั้งพื้นและผนัง
             </p>
 
-            <div className="mt-5 grid gap-3 text-sm text-white/70">
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">พื้นบ้าน: กระเบื้องเซรามิคขนาด 60x60</div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">ผนังห้องน้ำ: กระเบื้องลายหินอ่อน</div>
-              <div className="rounded-3xl bg-[#11151f]/80 p-3">ปูทับ: รองรับระบบปูทับกระเบื้องเดิม</div>
+            <div className="mt-5 grid gap-2.5 text-sm text-white/70 sm:gap-3">
+              <div className="rounded-2xl bg-black/25 p-3">พื้นบ้าน: กระเบื้องเซรามิคขนาด 60x60</div>
+              <div className="rounded-2xl bg-black/25 p-3">ผนังห้องน้ำ: กระเบื้องลายหินอ่อน</div>
+              <div className="rounded-2xl bg-black/25 p-3">ปูทับ: รองรับระบบปูทับกระเบื้องเดิม</div>
             </div>
 
             <div className="mt-6 flex items-center justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-orange-500 to-amber-400 text-lg font-bold">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-[#ED1B2E] to-[#ff5b68] text-lg font-bold">
                 T
               </div>
               <div className="flex items-center gap-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
+                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:border-[#ED1B2E]/40">
                   <Heart size={16} />
                 </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
+                <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:border-[#ED1B2E]/40">
                   <Share2 size={16} />
                 </button>
               </div>
@@ -288,6 +292,7 @@ export default function HomePage() {
         </div>
       </main>
 
+      {/* LINE contact button */}
       <a
         href="line://ti/p/@372vxxca"
         onClick={(e) => {
@@ -296,27 +301,24 @@ export default function HomePage() {
             window.open('https://line.me/R/ti/p/@372vxxca', '_blank');
           }
         }}
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-[0_12px_35px_rgba(34,197,94,0.28)] transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:bg-green-600 hover:shadow-[0_16px_40px_rgba(34,197,94,0.35)] sm:bottom-6"
+        className="fixed bottom-24 right-3 z-50 flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full bg-[#06C755] text-white shadow-[0_12px_35px_rgba(6,199,85,0.35)] transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:bg-[#05b34c] sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
         title="Chat with us on LINE"
       >
-        <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.365 9.863c.349-1.269.349-2.734-.436-3.884-1.141-1.745-3.255-2.501-5.369-2.501-3.584 0-6.533 2.202-6.533 5.001 0 1.284.495 2.467 1.314 3.382-.058.407-.349 2.467-.407 2.874-.058.610.611.524 1.058.262.349-.174 2.089-1.284 2.842-1.745.699.087 1.398.116 2.089.116 3.574 0 6.524-2.202 6.524-4.92 0-.699-.087-1.388-.262-2.068-.058.029-.116.029-.174.058 0 .466.058.932.058 1.397 0 2.262-2.089 3.884-4.885 3.884-.932 0-1.864-.174-2.680-.495l-1.512.942c-.436.262-1.058.349-1.397-.145-.232-.407.116-2.467.145-2.734-.465-.932-.814-1.922-.814-2.940 0-3.178 2.648-5.654 5.961-5.654 2.291 0 4.282.815 5.369 2.232.758 1.058.813 2.321.407 3.495l-.058.116z"/>
+        <svg className="h-7 w-7 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.365 9.863c.349-1.269.349-2.734-.436-3.884-1.141-1.745-3.255-2.501-5.369-2.501-3.584 0-6.533 2.202-6.533 5.001 0 1.284.495 2.467 1.314 3.382-.058.407-.349 2.467-.407 2.874-.058.610.611.524 1.058.262.349-.174 2.089-1.284 2.842-1.745.699.087 1.398.116 2.089.116 3.574 0 6.524-2.202 6.524-4.92 0-.699-.087-1.388-.262-2.068-.058.029-.116.029-.174.058 0 .466.058.932.058 1.397 0 2.262-2.089 3.884-4.885 3.884-.932 0-1.864-.174-2.680-.495l-1.512.942c-.436.262-1.058.349-1.397-.145-.232-.407.116-2.467.145-2.734-.465-.932-.814-1.922-.814-2.940 0-3.178 2.648-5.654 5.961-5.654 2.291 0 4.282.815 5.369 2.232.758 1.058.813 2.321.407 3.495l-.058.116z" />
         </svg>
       </a>
     </div>
   );
 }
 
-function Divider() {
-  return <div className="mx-1 h-5 w-px bg-white/20" />;
-}
-
-function FilterField({ label, value }: { label: string; value: string }) {
+function StatTile({ value, label }: { value: string; label: string }) {
   return (
-    <button className="flex flex-col items-start rounded-full px-5 py-1.5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-[0_8px_24px_rgba(0,0,0,0.14)]">
-      <span className="text-[10px] text-white/50">{label}</span>
-      <span className="text-sm font-medium text-white">{value}</span>
-    </button>
+    <div className="rounded-2xl bg-black/25 p-3.5 sm:rounded-3xl sm:p-4">
+      <div className="text-xl font-bold sm:text-3xl">{value}</div>
+      <div className="mt-1 text-[10px] text-white/50 sm:text-[11px]">{label}</div>
+    </div>
   );
 }
 
@@ -332,10 +334,8 @@ function SideIcon({
   return (
     <button
       onClick={onClick}
-      className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
-        active
-          ? 'bg-white text-[#141824] shadow-[0_10px_24px_rgba(255,255,255,0.18)]'
-          : 'text-white/70 hover:bg-white/15 hover:text-white hover:shadow-[0_8px_20px_rgba(0,0,0,0.16)]'
+      className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+        active ? 'bg-[#ED1B2E] text-white shadow-lg' : 'text-white/70 hover:bg-white/15 hover:text-white'
       }`}
     >
       {children}

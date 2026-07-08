@@ -21,14 +21,23 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>('all');
 
+  useEffect(() => {
+    const loadCRMData = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('claims_returns').select('*').order('created_at', { ascending: false });
+      if (!error && data) setItems(data as ClaimReturnItem[]);
+      setLoading(false);
+    };
+
+    void loadCRMData();
+  }, []);
+
   const fetchCRMData = async () => {
     setLoading(true);
     const { data, error } = await supabase.from('claims_returns').select('*').order('created_at', { ascending: false });
     if (!error && data) setItems(data as ClaimReturnItem[]);
     setLoading(false);
   };
-
-  useEffect(() => { fetchCRMData(); }, []);
 
   const handleUpdateStatus = async (id: number, newStatus: 'approved' | 'rejected') => {
     await supabase.from('claims_returns').update({ status: newStatus }).eq('id', id);
