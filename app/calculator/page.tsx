@@ -222,6 +222,22 @@ function useAnimatedNumber(target: number, duration = 380) {
   return value;
 }
 
+/** Tracks whether the viewport matches a max-width breakpoint, so inline styles
+ *  (which otherwise always beat CSS classes) can be swapped at runtime. */
+function useIsNarrow(breakpoint: number) {
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+
+  return isNarrow;
+}
+
 export default function TileMaterialCalculator() {
   const [surfaceType, setSurfaceType] = useState<SurfaceType>("floor");
   const [area, setArea] = useState<number>(20);
@@ -231,6 +247,11 @@ export default function TileMaterialCalculator() {
   const [copied, setCopied] = useState(false);
 
   const resultRef = useRef<HTMLDivElement | null>(null);
+
+  // Breakpoints matching the CSS media queries below — used to override the
+  // hard-coded inline gridTemplateColumns/position values on small screens.
+  const isTablet = useIsNarrow(980);
+  const isMobile = useIsNarrow(650);
 
   useEffect(() => {
     if (!copied) return;
@@ -339,6 +360,29 @@ export default function TileMaterialCalculator() {
     }
   }
 
+  // Responsive overrides for inline styles — inline `style` always beats CSS
+  // classes (even with !important on non-!important inline declarations it's
+  // the reverse, but mixing both was fragile), so we compute the correct
+  // values here based on tracked breakpoints instead of relying on CSS alone.
+  const gridStyle: React.CSSProperties = {
+    ...styles.grid,
+    gridTemplateColumns: isTablet ? "1fr" : styles.grid.gridTemplateColumns,
+    gap: isMobile ? 14 : styles.grid.gap,
+  };
+  const rightColStyle: React.CSSProperties = {
+    ...styles.rightCol,
+    position: isTablet ? "static" : styles.rightCol.position,
+    top: isTablet ? "auto" : styles.rightCol.top,
+  };
+  const tileGridStyle: React.CSSProperties = {
+    ...styles.tileGrid,
+    gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : styles.tileGrid.gridTemplateColumns,
+  };
+  const recommendedBrandRowStyle: React.CSSProperties = {
+    ...styles.recommendedBrandRow,
+    gridTemplateColumns: isTablet ? "1fr" : styles.recommendedBrandRow.gridTemplateColumns,
+  };
+
   return (
     <div className="dtc-page" style={styles.page}>
       <style>{`
@@ -408,21 +452,15 @@ export default function TileMaterialCalculator() {
           .dtc-card-enter, .dtc-fill-tile { animation: none; }
           .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn { transition: none; }
         }
-        .dtc-grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.75fr) 380px; align-items: start; }
-        .dtc-tile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .dtc-brand-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .dtc-grid { display: grid; gap: 20px; align-items: start; }
+        .dtc-tile-grid { display: grid; gap: 10px; }
+        .dtc-brand-grid { display: grid; gap: 10px; }
         .dtc-mobile-bar { display: none; }
         @media (max-width: 980px) {
-          .dtc-grid { grid-template-columns: 1fr; }
-          .dtc-right-col { position: static !important; top: auto !important; }
-          .dtc-tile-grid { grid-template-columns: repeat(2, 1fr); }
-          .dtc-brand-grid { grid-template-columns: 1fr; }
+          .dtc-mobile-bar { display: none; }
         }
         @media (max-width: 650px) {
           .dtc-page { padding: 24px 14px 8px; }
-          .dtc-grid { gap: 14px; }
-          .dtc-tile-grid { grid-template-columns: 1fr; }
-          .dtc-brand-grid { grid-template-columns: 1fr; }
           .dtc-root {
             padding: 0 2px calc(84px + env(safe-area-inset-bottom));
           }
@@ -458,7 +496,7 @@ export default function TileMaterialCalculator() {
           ))}
         </div>
 
-        <div className="dtc-grid" style={styles.grid}>
+        <div className="dtc-grid" style={gridStyle}>
           {/* Left column: inputs */}
           <div style={styles.leftCol}>
             {/* Surface type */}
@@ -560,7 +598,7 @@ export default function TileMaterialCalculator() {
             {/* Tile size selection */}
             <div className="dtc-glass dtc-card-enter" style={styles.card}>
               <SectionLabel icon={<LayoutGrid size={16} />} text={`3. ขนาดกระเบื้อง${surfaceType === "floor" ? "พื้น" : "ผนัง"}`} />
-              <div className="dtc-tile-grid" style={styles.tileGrid}>
+              <div className="dtc-tile-grid" style={tileGridStyle}>
                 {tiles.map((t) => (
                   <div
                     key={t.id}
@@ -589,7 +627,7 @@ export default function TileMaterialCalculator() {
             <div className="dtc-glass dtc-card-enter" style={styles.card}>
               <SectionLabel icon={<Package size={16} />} text="4. ยี่ห้อปูนกาวที่แนะนำ" />
               <div style={styles.notePill}>ระบบเลือกให้อัตโนมัติตามหน้างาน</div>
-              <div className="dtc-brand-grid" style={styles.recommendedBrandRow}>
+              <div className="dtc-brand-grid" style={recommendedBrandRowStyle}>
                 {recommendedAdhesive.brands.map((brand) => (
                   <div key={brand.id} className="dtc-brand-card" style={styles.recommendedBrandCard}>
                     <div style={{ ...styles.brandDot, background: brand.color }} />
@@ -613,7 +651,7 @@ export default function TileMaterialCalculator() {
           </div>
 
           {/* Right column: results */}
-          <div className="dtc-right-col" style={styles.rightCol} ref={resultRef}>
+          <div className="dtc-right-col" style={rightColStyle} ref={resultRef}>
             <div className="dtc-glass dtc-card-enter" style={styles.resultCard}>
               <div style={styles.resultHeader}>
                 <div className="dtc-heading" style={styles.resultTitle}>สรุปวัสดุที่ต้องใช้</div>

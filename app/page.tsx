@@ -73,8 +73,9 @@ const Megaphone = (props: { size?: number; strokeWidth?: number }) => (
 /**
  * Smart Tile Platform (DoM ดิวะ) — homepage
  * Dohome Red brand identity, dark glassmorphism, tile/grout motif.
- * Optimized for mobile: scrollable filter chips, safe-area aware fixed
- * elements, single accent palette, larger touch targets.
+ * Optimized for mobile: horizontally-scrollable filter chips, safe-area aware
+ * fixed elements, single accent palette, larger touch targets, no text/image
+ * overflow at narrow widths.
  */
 
 export default function HomePage() {
@@ -104,13 +105,13 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#07090d] font-sans text-white">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#07090d] font-sans text-white">
       {/* Background image + brand-tinted gradient wash */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=2400&q=80')",
+            "url('https://images.unsplash.com/photo-1678921902437-dc7803a337b0?auto=format&fit=crop&w=2400&q=80')",
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-[#2b0d10]/80 via-[#07090d]/35 to-[#07090d]/92" />
@@ -129,17 +130,18 @@ export default function HomePage() {
       {/* Top bar */}
       <header className="relative z-30 mx-auto max-w-6xl px-4 pt-3 sm:px-8 sm:pt-8">
         <div className="flex flex-col gap-3 rounded-[1.75rem] border border-white/15 bg-white/10 px-4 py-3 shadow-[0_14px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-3">
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/80">
-            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">ประเภทกระเบื้อง</span>
-            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">วัสดุ</span>
-            <span className="rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">งาน</span>
-            <span className="rounded-full bg-white/10 px-3 py-2 text-white">ปูกระเบื้องบ้าน</span>
+          {/* Filter chips: horizontally scrollable on mobile (no wrap/no visible scrollbar), wraps normally from sm up */}
+          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm font-medium text-white/80 sm:flex-wrap sm:gap-4 sm:overflow-visible sm:whitespace-normal">
+            <span className="flex-shrink-0 rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">ประเภทกระเบื้อง</span>
+            <span className="flex-shrink-0 rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">วัสดุ</span>
+            <span className="flex-shrink-0 rounded-full px-3 py-2 transition-all duration-300 hover:bg-white/10">งาน</span>
+            <span className="flex-shrink-0 rounded-full bg-white/10 px-3 py-2 text-white">ปูกระเบื้องบ้าน</span>
           </div>
           <div className="flex flex-shrink-0 items-center justify-end">
             {userEmail ? (
               <button
                 onClick={handleLogout}
-                className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/25 hover:border-[#ED1B2E]/50 active:scale-[0.97]"
+                className="max-w-[55vw] truncate rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/25 hover:border-[#ED1B2E]/50 active:scale-[0.97] sm:max-w-none"
               >
                 ออกจากระบบ
               </button>
@@ -170,7 +172,7 @@ export default function HomePage() {
           <Bell size={18} strokeWidth={2} />
         </SideIcon>
         <div
-          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition-all ${
+          className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all ${
             userEmail ? 'bg-[#ED1B2E] text-white shadow-lg' : 'border border-white/15 text-white/70'
           }`}
           aria-label="Profile"
@@ -206,10 +208,10 @@ export default function HomePage() {
                 className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm font-medium text-white/95 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:shadow-[0_10px_24px_rgba(0,0,0,0.2)]"
                 onClick={() => setShowPages(false)}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#ED1B2E]/20 text-[#ff5b68]">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-[#ED1B2E]/20 text-[#ff5b68]">
                   <IconComp size={16} strokeWidth={2} />
                 </span>
-                <span>{p.label}</span>
+                <span className="truncate">{p.label}</span>
               </Link>
             );
           })}
@@ -247,18 +249,18 @@ export default function HomePage() {
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-3">
-              <StatTile value="65%" label="ลดเวลาเลือกวัสดุ" />
-              <StatTile value="2 แบรนด์" label="COTTO และ จระเข้" />
-              <StatTile value="รองรับปูทับ" label="สำหรับงานพื้นและผนัง" />
-              <StatTile value="มืออาชีพ" label="ออกแบบเพื่อช่างและผู้ช่วยวางแผน" />
+              <StatTile value="65%" label="เร็วกว่าคำนวณมือ" />
+              <StatTile value="2 แบรนด์" label="COTTO และ จระเข้ ในที่เดียว" />
+              <StatTile value="ปูทับได้" label="รองรับทั้งพื้นและผนัง" />
+              <StatTile value="ทำงานจริง" label="ออกแบบมาเพื่อทีมช่างของคุณ" />
             </div>
           </div>
 
           <div className="rounded-[1.75rem] border border-white/15 bg-white/10 p-5 shadow-[0_20px_70px_rgba(0,0,0,0.3)] backdrop-blur-2xl sm:rounded-[2rem] sm:p-7">
             <div className="flex items-start justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <h3 className="text-base font-semibold sm:text-lg">Tile Style Collection</h3>
-                <p className="mt-1 text-xs text-white/50">เมทัลสโตน, โมเสก, ลายหินอ่อน</p>
+                <p className="mt-1 truncate text-xs text-white/50">เมทัลสโตน, โมเสก, ลายหินอ่อน</p>
               </div>
               <button className="flex-shrink-0 rounded-full border border-white/20 p-2 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#ED1B2E]/20 hover:border-[#ED1B2E]/40">
                 <ArrowUpRight size={16} />
@@ -276,7 +278,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-6 flex items-center justify-between">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-[#ED1B2E] to-[#ff5b68] text-lg font-bold">
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#ED1B2E] to-[#ff5b68] text-lg font-bold">
                 T
               </div>
               <div className="flex items-center gap-2">
@@ -316,7 +318,7 @@ export default function HomePage() {
 function StatTile({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-2xl bg-black/25 p-3.5 sm:rounded-3xl sm:p-4">
-      <div className="text-xl font-bold sm:text-3xl">{value}</div>
+      <div className="truncate text-xl font-bold sm:text-3xl">{value}</div>
       <div className="mt-1 text-[10px] text-white/50 sm:text-[11px]">{label}</div>
     </div>
   );
@@ -334,7 +336,7 @@ function SideIcon({
   return (
     <button
       onClick={onClick}
-      className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+      className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all ${
         active ? 'bg-[#ED1B2E] text-white shadow-lg' : 'text-white/70 hover:bg-white/15 hover:text-white'
       }`}
     >
