@@ -143,7 +143,7 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     id: "cotto-silver",
     name: "COTTO Silver",
     tag: "COTTO",
-    color: "#8a8f98",
+    color: "#9aa0ac",
     description: "สูตรแรงยึดเกาะสูงพิเศษ ออกแบบมาสำหรับปูทับพื้นผิวเดิมโดยเฉพาะ ห้ามใช้สูตรธรรมดาแทน",
     link: "https://www.cotto.com/product/tile-adhesive",
   },
@@ -151,7 +151,7 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     id: "jorakay-green",
     name: "จระเข้เขียว",
     tag: "Jorakay",
-    color: "#1D9E4B",
+    color: "#2FA35B",
     description: "ปูนกาวมาตรฐานสำหรับกระเบื้องทั่วไปและกระเบื้องขนาดใหญ่ ใช้ได้ทั้งภายในและภายนอก",
     link: "https://www.jorakay.co.th/tiling/tile-adhesive/green-crocodile-tile-adhesive",
   },
@@ -159,7 +159,7 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
     id: "jorakay-red",
     name: "จระเข้แดง",
     tag: "Jorakay",
-    color: "#D63031",
+    color: "#E14B4B",
     description: "แรงยึดเกาะสูงพิเศษ เหมาะสำหรับกระเบื้องสระว่ายน้ำ กระเบื้องแผ่นใหญ่ และพื้นที่ที่ต้องแช่น้ำ",
     link: "https://www.dcctoyou.com/jorakay",
   },
@@ -183,9 +183,43 @@ const ADHESIVE_BRANDS: AdhesiveBrand[] = [
 
 const GROUT_COVERAGE = 5; // ตร.ม. ต่อถุงยาแนว
 const WASTE_OPTIONS = [0, 5, 10];
+const BLUE = "#5B9BD5";
+const RED = "#ED1B2E";
 
 function round2(n: number) {
   return Math.round(n * 100) / 100;
+}
+
+/** Tweens a number toward its target so result changes feel alive instead of snapping. */
+function useAnimatedNumber(target: number, duration = 380) {
+  const [value, setValue] = useState(target);
+  const fromRef = useRef(target);
+
+  useEffect(() => {
+    const from = fromRef.current;
+    const diff = target - from;
+    if (diff === 0) return;
+    let raf = 0;
+    let startTime: number | null = null;
+
+    function tick(ts: number) {
+      if (startTime === null) startTime = ts;
+      const progress = Math.min(1, (ts - startTime) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(from + diff * eased));
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = target;
+        setValue(target);
+      }
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
+
+  return value;
 }
 
 export default function TileMaterialCalculator() {
@@ -220,6 +254,10 @@ export default function TileMaterialCalculator() {
       groutBags: Math.ceil(a / GROUT_COVERAGE),
     };
   }, [effectiveArea, activeTile]);
+
+  const animatedBoxes = useAnimatedNumber(results.boxes);
+  const animatedAdhesive = useAnimatedNumber(results.adhesiveBags);
+  const animatedGrout = useAnimatedNumber(results.groutBags);
 
   const recommendedAdhesive = useMemo(() => {
     if (overlay) {
@@ -276,10 +314,7 @@ export default function TileMaterialCalculator() {
   }
 
   function adjustArea(delta: number) {
-    setArea((prev) => {
-      const next = round2(Math.max(0, (Number(prev) || 0) + delta));
-      return next;
-    });
+    setArea((prev) => round2(Math.max(0, (Number(prev) || 0) + delta)));
   }
 
   function scrollToResult() {
@@ -305,11 +340,40 @@ export default function TileMaterialCalculator() {
   }
 
   return (
-    <div style={styles.page}>
+    <div className="dtc-page" style={styles.page}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap');
-        .dtc-root, .dtc-root * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+        .dtc-root, .dtc-root * {
+          box-sizing: border-box;
+          font-family: 'Sarabun', sans-serif;
+          -webkit-tap-highlight-color: transparent;
+        }
         .dtc-heading { font-family: 'Kanit', sans-serif; }
+        .dtc-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+        .dtc-page {
+          position: relative;
+          min-height: 100vh;
+          min-height: 100dvh;
+          width: 100%;
+          padding: 40px 20px;
+          overflow-x: hidden;
+          isolation: isolate;
+        }
+        .dtc-page::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image:
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 56px),
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 56px);
+          mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 85%);
+          -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 85%);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .dtc-root { position: relative; z-index: 1; }
+
         .dtc-glass {
           background: rgba(255,255,255,0.045);
           border: 1px solid rgba(255,255,255,0.09);
@@ -317,10 +381,13 @@ export default function TileMaterialCalculator() {
           -webkit-backdrop-filter: blur(18px);
           border-radius: 20px;
         }
-        .dtc-input:focus { outline: none; border-color: #ED1B2E; box-shadow: 0 0 0 3px rgba(237,27,46,0.25); }
+        .dtc-input:focus { outline: none; border-color: ${RED}; box-shadow: 0 0 0 3px rgba(237,27,46,0.25); }
         .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn, .dtc-mobile-bar {
           transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
+          touch-action: manipulation;
+          -webkit-user-select: none;
+          user-select: none;
         }
         .dtc-tile-card:hover, .dtc-brand-card:hover { border-color: rgba(237,27,46,0.5) !important; }
         button:focus-visible, .dtc-tile-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(237,27,46,0.4); }
@@ -332,8 +399,13 @@ export default function TileMaterialCalculator() {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        .dtc-fill-tile { animation: dtcPop 0.3s ease both; }
+        @keyframes dtcPop {
+          from { opacity: 0; transform: scale(0.5); }
+          to { opacity: 1; transform: scale(1); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .dtc-card-enter { animation: none; }
+          .dtc-card-enter, .dtc-fill-tile { animation: none; }
           .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn { transition: none; }
         }
         .dtc-grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.75fr) 380px; align-items: start; }
@@ -347,16 +419,19 @@ export default function TileMaterialCalculator() {
           .dtc-brand-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 650px) {
+          .dtc-page { padding: 24px 14px 8px; }
           .dtc-grid { gap: 14px; }
           .dtc-tile-grid { grid-template-columns: 1fr; }
           .dtc-brand-grid { grid-template-columns: 1fr; }
-          .dtc-root { padding: 0 4px 84px; }
+          .dtc-root {
+            padding: 0 2px calc(84px + env(safe-area-inset-bottom));
+          }
           .dtc-mobile-bar {
             display: flex;
             position: fixed;
-            left: 12px;
-            right: 12px;
-            bottom: 14px;
+            left: calc(12px + env(safe-area-inset-left));
+            right: calc(12px + env(safe-area-inset-right));
+            bottom: calc(14px + env(safe-area-inset-bottom));
             z-index: 30;
           }
         }
@@ -365,7 +440,6 @@ export default function TileMaterialCalculator() {
       `}</style>
 
       <div className="dtc-root" style={styles.container}>
-
         {/* Step indicator */}
         <div style={styles.stepsRow}>
           {[
@@ -376,7 +450,7 @@ export default function TileMaterialCalculator() {
           ].map((s, i) => (
             <React.Fragment key={s.n}>
               <div style={styles.stepItem}>
-                <div style={styles.stepCircle}>{s.n}</div>
+                <div className="dtc-mono" style={styles.stepCircle}>{s.n}</div>
                 <span style={styles.stepLabel}>{s.label}</span>
               </div>
               {i < 3 && <div style={styles.stepLine} />}
@@ -424,7 +498,7 @@ export default function TileMaterialCalculator() {
                   −
                 </button>
                 <input
-                  className="dtc-input"
+                  className="dtc-input dtc-mono"
                   type="number"
                   inputMode="decimal"
                   min="0"
@@ -499,13 +573,15 @@ export default function TileMaterialCalculator() {
                   >
                     <div style={styles.tileSize}>{t.label}</div>
                     {t.sub && <div style={styles.tileSub}>{t.sub}</div>}
-                    <div style={styles.tileCoverage}>ปูได้ {t.coverage} ตร.ม./กล่อง</div>
+                    <div className="dtc-mono" style={styles.tileCoverage}>{t.coverage} ตร.ม./กล่อง</div>
                   </div>
                 ))}
               </div>
               <div style={styles.notchHint}>
-                <Ruler size={13} style={{ opacity: 0.7, flexShrink: 0 }} />
-                <span>เกรียงหวีแนะนำสำหรับขนาดนี้: <b style={{ color: "#fff" }}>{activeTile.notch}</b></span>
+                <Ruler size={13} style={{ opacity: 0.85, flexShrink: 0, color: BLUE }} />
+                <span>
+                  เกรียงหวีแนะนำสำหรับขนาดนี้: <b className="dtc-mono" style={{ color: "#fff", fontWeight: 700 }}>{activeTile.notch}</b>
+                </span>
               </div>
             </div>
 
@@ -542,19 +618,26 @@ export default function TileMaterialCalculator() {
               <div style={styles.resultHeader}>
                 <div className="dtc-heading" style={styles.resultTitle}>สรุปวัสดุที่ต้องใช้</div>
                 <div style={styles.resultArea}>
-                  {round2(effectiveArea)} ตร.ม.{" "}
-                  {waste > 0 && <span style={styles.resultAreaBase}>(รวมเผื่อเสีย จาก {round2(Number(area) || 0)})</span>}
+                  <span className="dtc-mono">{round2(effectiveArea)}</span> ตร.ม.{" "}
+                  {waste > 0 && (
+                    <span style={styles.resultAreaBase}>
+                      (รวมเผื่อเสีย จาก <span className="dtc-mono">{round2(Number(area) || 0)}</span>)
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <ResultRow label={`กระเบื้อง ${activeTile.label}`} value={results.boxes} unit="กล่อง" />
+              <ResultRow label={`กระเบื้อง ${activeTile.label}`} value={animatedBoxes} unit="กล่อง" dotColor={RED} />
+              <TileFillPreview count={results.boxes} />
+
               <ResultRow
                 label="ปูนกาว"
-                value={results.adhesiveBags}
+                value={animatedAdhesive}
                 unit="กระสอบ"
+                dotColor={recommendedAdhesive.brands[0].color}
                 accent={recommendedAdhesive.brands[0].color}
               />
-              <ResultRow label="ยาแนว" value={results.groutBags} unit="ถุง" />
+              <ResultRow label="ยาแนว" value={animatedGrout} unit="ถุง" dotColor={BLUE} />
 
               <div style={styles.recommendationBox}>
                 <div style={styles.recommendationTitle}>{recommendedAdhesive.title}</div>
@@ -585,17 +668,17 @@ export default function TileMaterialCalculator() {
       <div className="dtc-mobile-bar" style={styles.mobileBar} onClick={scrollToResult} role="button" tabIndex={0}>
         <div style={styles.mobileBarStats}>
           <div style={styles.mobileBarStat}>
-            <span style={styles.mobileBarNum}>{results.boxes}</span>
+            <span className="dtc-mono" style={styles.mobileBarNum}>{animatedBoxes}</span>
             <span style={styles.mobileBarUnit}>กล่อง</span>
           </div>
           <div style={styles.mobileBarDivider} />
           <div style={styles.mobileBarStat}>
-            <span style={styles.mobileBarNum}>{results.adhesiveBags}</span>
+            <span className="dtc-mono" style={styles.mobileBarNum}>{animatedAdhesive}</span>
             <span style={styles.mobileBarUnit}>ปูนกาว</span>
           </div>
           <div style={styles.mobileBarDivider} />
           <div style={styles.mobileBarStat}>
-            <span style={styles.mobileBarNum}>{results.groutBags}</span>
+            <span className="dtc-mono" style={styles.mobileBarNum}>{animatedGrout}</span>
             <span style={styles.mobileBarUnit}>ยาแนว</span>
           </div>
         </div>
@@ -617,62 +700,75 @@ function SectionLabel({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
-function ResultRow({ label, value, unit, accent }: { label: string; value: number; unit: string; accent?: string }) {
+function ResultRow({
+  label,
+  value,
+  unit,
+  accent,
+  dotColor,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  accent?: string;
+  dotColor?: string;
+}) {
   return (
     <div style={styles.resultRow}>
-      <span style={styles.resultRowLabel}>{label}</span>
-      <span style={{ ...styles.resultRowValue, color: accent || "#fff" }}>
+      <span style={styles.resultRowLabel}>
+        {dotColor && <span style={{ ...styles.resultDot, background: dotColor }} />}
+        {label}
+      </span>
+      <span className="dtc-mono" style={{ ...styles.resultRowValue, color: accent || "#fff" }}>
         {value} <span style={styles.resultRowUnit}>{unit}</span>
       </span>
     </div>
   );
 }
 
-const RED = "#ED1B2E";
+/** Literal visual read: each square is one box of tile, so the quantity is felt, not just read. */
+function TileFillPreview({ count, max = 30 }: { count: number; max?: number }) {
+  const shown = Math.min(count, max);
+  const overflow = count - shown;
+  return (
+    <div style={styles.tileFillWrap}>
+      <div style={styles.tileFillGrid}>
+        {Array.from({ length: shown }).map((_, i) => (
+          <div
+            key={i}
+            className="dtc-fill-tile"
+            style={{ ...styles.fillTile, animationDelay: `${Math.min(i * 14, 300)}ms` }}
+          />
+        ))}
+        {overflow > 0 && (
+          <div className="dtc-mono" style={styles.fillTileMore}>+{overflow}</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    minHeight: "100vh",
-    width: "100%",
-    background: "radial-gradient(circle at 15% 0%, #22252b 0%, #14161a 45%, #0c0d10 100%)",
-    padding: "40px 20px",
+    background: "radial-gradient(circle at 15% 0%, #221f1a 0%, #171512 45%, #0d0c0a 100%)",
   },
   container: { maxWidth: 980, margin: "0 auto" },
-  header: { display: "flex", alignItems: "center", gap: 16, marginBottom: 22 },
-  logoBadge: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    background: `linear-gradient(135deg, ${RED}, #a80f1d)`,
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "'Kanit', sans-serif",
-    fontWeight: 700,
-    fontSize: 16,
-    letterSpacing: 0.5,
-    boxShadow: `0 8px 24px ${RED}44`,
-    flexShrink: 0,
-  },
-  title: { color: "#fff", fontSize: 22, fontWeight: 600 },
-  subtitle: { color: "#8a8f98", fontSize: 13, marginTop: 2 },
   stepsRow: { display: "flex", alignItems: "center", marginBottom: 22, padding: "0 4px" },
   stepItem: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 44 },
   stepCircle: {
-    width: 26,
-    height: 26,
+    width: 27,
+    height: 27,
     borderRadius: "50%",
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.14)",
-    color: "#c7cad1",
+    background: "rgba(91,155,213,0.14)",
+    border: `1px solid ${BLUE}66`,
+    color: BLUE,
     fontSize: 12,
-    fontWeight: 600,
+    fontWeight: 700,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
-  stepLabel: { color: "#767b85", fontSize: 10.5 },
+  stepLabel: { color: "#8a857c", fontSize: 10.5 },
   stepLine: { flex: 1, height: 1, background: "rgba(255,255,255,0.1)", margin: "0 4px 18px" },
   grid: { display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: 20, alignItems: "start" },
   leftCol: { display: "flex", flexDirection: "column", gap: 16 },
@@ -682,7 +778,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    color: "#c7cad1",
+    color: "#cac6be",
     fontSize: 13,
     fontWeight: 500,
     marginBottom: 14,
@@ -702,7 +798,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
-    color: "#c7cad1",
+    color: "#cac6be",
     fontSize: 15,
     fontWeight: 500,
     borderRadius: 12,
@@ -737,8 +833,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     textAlign: "center",
   },
-  areaUnit: { color: "#8a8f98", fontSize: 14, minWidth: 40 },
-  wasteLabel: { color: "#8a8f98", fontSize: 12.5, marginBottom: 8 },
+  areaUnit: { color: "#9a958b", fontSize: 14, minWidth: 40 },
+  wasteLabel: { color: "#9a958b", fontSize: 12.5, marginBottom: 8 },
   wasteBtn: {
     flex: 1,
     padding: "10px 0",
@@ -748,7 +844,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderStyle: "solid",
     borderColor: "rgba(255,255,255,0.1)",
     background: "rgba(255,255,255,0.03)",
-    color: "#c7cad1",
+    color: "#cac6be",
     fontSize: 13,
   },
   wasteBtnActive: { background: "rgba(237,27,46,0.18)", borderColor: RED, color: "#ff8891" },
@@ -765,8 +861,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tileCardActive: { borderColor: RED, background: "rgba(237,27,46,0.14)" },
   tileSize: { color: "#fff", fontSize: 14, fontWeight: 600 },
-  tileSub: { color: "#8a8f98", fontSize: 10.5, marginTop: 2 },
-  tileCoverage: { color: "#8a8f98", fontSize: 11, marginTop: 6 },
+  tileSub: { color: "#9a958b", fontSize: 10.5, marginTop: 2 },
+  tileCoverage: { color: "#9a958b", fontSize: 11, marginTop: 6 },
   notchHint: {
     display: "flex",
     alignItems: "center",
@@ -774,8 +870,9 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 14,
     padding: "10px 12px",
     borderRadius: 10,
-    background: "rgba(255,255,255,0.04)",
-    color: "#9aa0ac",
+    background: "rgba(91,155,213,0.08)",
+    border: `1px solid ${BLUE}33`,
+    color: "#b7c9db",
     fontSize: 12,
   },
   notePill: {
@@ -804,15 +901,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
   brandDot: { width: 12, height: 12, borderRadius: "50%", flexShrink: 0, marginTop: 3 },
   brandName: { color: "#fff", fontSize: 14, fontWeight: 600 },
-  brandTag: { color: "#8a8f98", fontSize: 10.5, letterSpacing: 0.5 },
+  brandTag: { color: "#9a958b", fontSize: 10.5, letterSpacing: 0.5 },
   hintRow: { display: "flex", gap: 6, marginTop: 12, alignItems: "flex-start" },
-  hintText: { color: "#767b85", fontSize: 11.5, lineHeight: 1.5 },
+  hintText: { color: "#847f76", fontSize: 11.5, lineHeight: 1.5 },
   resultCard: { padding: "22px 24px" },
   resultHeader: { marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.08)" },
   resultTitle: { color: "#fff", fontSize: 18, fontWeight: 600 },
-  resultArea: { color: "#8a8f98", fontSize: 12.5, marginTop: 6 },
-  resultAreaBase: { color: "#5f636b" },
-  brandDescription: { color: "#9aa0ac", fontSize: 12.5, marginTop: 4, maxWidth: 320 },
+  resultArea: { color: "#9a958b", fontSize: 12.5, marginTop: 6 },
+  resultAreaBase: { color: "#635e56" },
+  brandDescription: { color: "#a7a29a", fontSize: 12.5, marginTop: 4, maxWidth: 320 },
   recommendationBox: {
     marginTop: 16,
     padding: "14px 16px",
@@ -823,7 +920,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderColor: "rgba(255,255,255,0.08)",
   },
   recommendationTitle: { color: "#fff", fontSize: 14, fontWeight: 600, marginBottom: 6 },
-  recommendationText: { color: "#c7cad1", fontSize: 13, lineHeight: 1.6, marginBottom: 10 },
+  recommendationText: { color: "#cac6be", fontSize: 13, lineHeight: 1.6, marginBottom: 10 },
   recommendationList: { display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 },
   recommendationBadge: {
     display: "inline-block",
@@ -841,9 +938,26 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "12px 0",
     borderBottom: "1px solid rgba(255,255,255,0.06)",
   },
-  resultRowLabel: { color: "#c7cad1", fontSize: 13.5 },
+  resultRowLabel: { color: "#cac6be", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 },
+  resultDot: { width: 7, height: 7, borderRadius: "50%", flexShrink: 0 },
   resultRowValue: { fontSize: 20, fontWeight: 700 },
-  resultRowUnit: { fontSize: 12, fontWeight: 400, color: "#8a8f98" },
+  resultRowUnit: { fontSize: 11, fontWeight: 500, color: "#9a958b", fontFamily: "'Sarabun', sans-serif" },
+  tileFillWrap: { padding: "2px 0 14px 15px" },
+  tileFillGrid: { display: "flex", flexWrap: "wrap", gap: 4, maxWidth: 280 },
+  fillTile: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    background: `linear-gradient(135deg, ${RED}, #a80f1d)`,
+    boxShadow: `0 0 0 1px rgba(255,255,255,0.08)`,
+  },
+  fillTileMore: {
+    color: "#9a958b",
+    fontSize: 10.5,
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 4,
+  },
   copyBtn: {
     width: "100%",
     marginTop: 16,
@@ -860,14 +974,14 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     gap: 8,
   },
-  disclaimer: { color: "#5f636b", fontSize: 11, lineHeight: 1.6, marginTop: 16 },
+  disclaimer: { color: "#635e56", fontSize: 11, lineHeight: 1.6, marginTop: 16 },
   mobileBar: {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
     padding: "12px 16px",
     borderRadius: 18,
-    background: "rgba(20,22,26,0.92)",
+    background: "rgba(23,21,18,0.92)",
     border: "1px solid rgba(255,255,255,0.12)",
     backdropFilter: "blur(20px)",
     WebkitBackdropFilter: "blur(20px)",
@@ -876,7 +990,7 @@ const styles: Record<string, React.CSSProperties> = {
   mobileBarStats: { display: "flex", alignItems: "center", gap: 10 },
   mobileBarStat: { display: "flex", flexDirection: "column", alignItems: "center", minWidth: 44 },
   mobileBarNum: { color: "#fff", fontSize: 16, fontWeight: 700, lineHeight: 1.1 },
-  mobileBarUnit: { color: "#8a8f98", fontSize: 10 },
+  mobileBarUnit: { color: "#9a958b", fontSize: 10 },
   mobileBarDivider: { width: 1, height: 24, background: "rgba(255,255,255,0.12)" },
   mobileBarAction: {
     display: "flex",
