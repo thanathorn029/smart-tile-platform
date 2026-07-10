@@ -90,6 +90,13 @@ const ChevronUp = (props: { size?: number; strokeWidth?: number; style?: React.C
   </Icon>
 );
 
+const ShieldCheck = (props: { size?: number; strokeWidth?: number; style?: React.CSSProperties }) => (
+  <Icon {...props}>
+    <path d="M12 3 4 6v6c0 4.5 3.4 7.7 8 9 4.6-1.3 8-4.5 8-9V6l-8-3z" />
+    <path d="m9 12 2 2 4-4" />
+  </Icon>
+);
+
 type SurfaceType = "floor" | "wall";
 
 type TileOption = {
@@ -98,93 +105,115 @@ type TileOption = {
   sub: string;
   coverage: number; // ตร.ม. ต่อกล่องกระเบื้อง
   notch: string; // ขนาดเกรียงหวีแนะนำ
+  trim: string; // ขนาดคิ้วแนะนำ
   adhesiveCoverage: number; // ตร.ม. ต่อกระสอบปูนกาว (ตามขนาดเกรียงหวี)
 };
 
-type AdhesiveBrand = {
+type AdhesiveGrade = {
   id: string;
   name: string;
-  tag: string;
+  nameEn: string;
+  ansi: string;
   color: string;
+  colorSoft: string;
+  tagline: string;
   description: string;
+  sizes: string;
   link: string;
 };
 
 const FLOOR_TILES: TileOption[] = [
-  { id: "f30", label: "30 x 30 ซม.", sub: "(12 x 12 นิ้ว)", coverage: 1, notch: "6 มม.", adhesiveCoverage: 6 },
-  { id: "f40", label: "40 x 40 ซม.", sub: "(16 x 16 นิ้ว)", coverage: 1, notch: "6–8 มม.", adhesiveCoverage: 5 },
-  { id: "f60", label: "60 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", adhesiveCoverage: 4 },
+  { id: "f30", label: "30 x 30 ซม.", sub: "(12 x 12 นิ้ว)", coverage: 1, notch: "6 มม.", trim: "8–9 มม.", adhesiveCoverage: 6 },
+  { id: "f40", label: "40 x 40 ซม.", sub: "(16 x 16 นิ้ว)", coverage: 1, notch: "6–8 มม.", trim: "9–10 มม.", adhesiveCoverage: 5 },
+  { id: "f60", label: "60 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", trim: "11–12 มม.", adhesiveCoverage: 4 },
 ];
 
 const WALL_TILES: TileOption[] = [
-  { id: "w1016", label: "10 x 16 ซม.", sub: "", coverage: 1, notch: "6 มม.", adhesiveCoverage: 6 },
-  { id: "w3045", label: "30 x 45 ซม.", sub: "", coverage: 1, notch: "6–8 มม.", adhesiveCoverage: 5 },
-  { id: "w3060", label: "30 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", adhesiveCoverage: 4 },
+  { id: "w1016", label: "10 x 16 ซม.", sub: "", coverage: 1, notch: "6 มม.", trim: "8–9 มม.", adhesiveCoverage: 6 },
+  { id: "w3045", label: "30 x 45 ซม.", sub: "", coverage: 1, notch: "6–8 มม.", trim: "9–10 มม.", adhesiveCoverage: 5 },
+  { id: "w3060", label: "30 x 60 ซม.", sub: "ปูได้ 1.44 ตร.ม./กล่อง", coverage: 1.44, notch: "8–10 มม.", trim: "11–12 มม.", adhesiveCoverage: 4 },
 ];
 
-const ADHESIVE_BRANDS: AdhesiveBrand[] = [
-  {
-    id: "cotto-standard",
-    name: "COTTO Standard",
-    tag: "COTTO",
-    color: "#2C6ECB",
-    description: "กาวซีเมนต์สำหรับงานพื้นและผนังภายในอาคาร ติดแน่นและประหยัด เหมาะกับกระเบื้องมาตรฐาน",
-    link: "https://www.cotto.com/product/tile-adhesive",
-  },
-  {
-    id: "cotto-premium",
-    name: "COTTO Premium",
-    tag: "COTTO",
-    color: "#D4AF37",
-    description: "ปูนกาวเกรดพรีเมียม ทนต่อการใช้งานหนักและกระเบื้องขนาดใหญ่ ปูได้เสถียรลดโอกาสโก่งตัว",
-    link: "https://www.cotto.com/product/tile-adhesive",
-  },
-  {
-    id: "cotto-silver",
-    name: "COTTO Silver",
-    tag: "COTTO",
-    color: "#9aa0ac",
-    description: "สูตรแรงยึดเกาะสูงพิเศษ ออกแบบมาสำหรับปูทับพื้นผิวเดิมโดยเฉพาะ ห้ามใช้สูตรธรรมดาแทน",
-    link: "https://www.cotto.com/product/tile-adhesive",
-  },
-  {
-    id: "jorakay-green",
-    name: "จระเข้เขียว",
-    tag: "Jorakay",
-    color: "#2FA35B",
-    description: "ปูนกาวมาตรฐานสำหรับกระเบื้องทั่วไปและกระเบื้องขนาดใหญ่ ใช้ได้ทั้งภายในและภายนอก",
-    link: "https://www.jorakay.co.th/tiling/tile-adhesive/green-crocodile-tile-adhesive",
-  },
-  {
-    id: "jorakay-red",
-    name: "จระเข้แดง",
-    tag: "Jorakay",
-    color: "#E14B4B",
-    description: "แรงยึดเกาะสูงพิเศษ เหมาะสำหรับกระเบื้องสระว่ายน้ำ กระเบื้องแผ่นใหญ่ และพื้นที่ที่ต้องแช่น้ำ",
-    link: "https://www.dcctoyou.com/jorakay",
-  },
-  {
-    id: "jorakay-silver",
-    name: "จระเข้เงิน",
-    tag: "Jorakay",
-    color: "#c7cad1",
-    description: "สำหรับกระเบื้องขนาดใหญ่มาก หินอ่อน หินแกรนิต และงานปูทับกระเบื้องเดิม ช่วยลดปัญหาโก่งตัว",
+// ข้อมูลกาวซีเมนต์จระเข้ทั้ง 6 รุ่น อ้างอิงจากป้ายไลน์อัพหน้าร้าน
+const JORAKAY_GRADES: Record<string, AdhesiveGrade> = {
+  yellow: {
+    id: "jorakay-yellow",
+    name: "จระเข้เหลือง",
+    nameEn: "Yellow Crocodile",
+    ansi: "รุ่นประหยัด",
+    color: "#D9A62E",
+    colorSoft: "#FBF1DA",
+    tagline: "สำหรับงานทั่วไป",
+    description: "รุ่นประหยัด คุ้มค่า เหมาะกับกระเบื้องขนาดเล็ก-กลางสำหรับงานทั่วไป",
+    sizes: "25×30, 30×30, 40×40, 30×45, 60×60 (พื้น) ซม.",
     link: "https://www.jorakay.co.th/tiling/tile-adhesive",
   },
-  {
+  blue: {
+    id: "jorakay-blue",
+    name: "จระเข้ฟ้า",
+    nameEn: "Blue Crocodile",
+    ansi: "ANSI A118.1",
+    color: "#2F80C4",
+    colorSoft: "#E1EEFA",
+    tagline: "รุ่นมาตรฐาน ราคาประหยัด",
+    description: "มาตรฐาน ANSI A118.1 ราคาประหยัด เหมาะกับงานทั่วไปที่ต้องการมาตรฐานสากล",
+    sizes: "25×30, 30×30, 40×40, 30×45, 60×60 (พื้น) ซม.",
+    link: "https://www.jorakay.co.th/tiling/tile-adhesive",
+  },
+  green: {
+    id: "jorakay-green",
+    name: "จระเข้เขียว",
+    nameEn: "Green Crocodile",
+    ansi: "ANSI A118.1",
+    color: "#2FA35B",
+    colorSoft: "#E2F3E8",
+    tagline: "รุ่นขายดีอันดับ 1",
+    description: "คุณภาพมาตรฐานทั้งไทย (มอก.) และสากล ขายดีที่สุด ใช้ได้ทั้งพื้นและผนัง",
+    sizes: "25×40, 30×30, 40×40, 30×45, 60×60 ซม.",
+    link: "https://www.jorakay.co.th/tiling/tile-adhesive/green-crocodile-tile-adhesive",
+  },
+  red: {
+    id: "jorakay-red",
+    name: "จระเข้แดง",
+    nameEn: "Red Crocodile",
+    ansi: "ANSI A118.4",
+    color: "#E14B4B",
+    colorSoft: "#FCE4E4",
+    tagline: "คุณภาพสูง กระเบื้องแผ่นใหญ่",
+    description: "แรงยึดเกาะสูงพิเศษ เหมาะกับกระเบื้องขนาดใหญ่และกระเบื้องสระว่ายน้ำ",
+    sizes: "10×10, 30×60, 60×60, 60×120, 100×100 ซม.",
+    link: "https://www.dcctoyou.com/jorakay",
+  },
+  silver: {
+    id: "jorakay-silver",
+    name: "จระเข้เงิน",
+    nameEn: "Silver Crocodile",
+    ansi: "ANSI A118.15",
+    color: "#8B909C",
+    colorSoft: "#EAEBEE",
+    tagline: "มาตรฐานสูง Big size / ปูทับ",
+    description: "มาตรฐานสูง สำหรับกระเบื้องขนาดใหญ่พิเศษและงานปูทับกระเบื้องเดิมโดยเฉพาะ",
+    sizes: "60×120, 80×80, 100×100 ซม.",
+    link: "https://www.jorakay.co.th/tiling/tile-adhesive",
+  },
+  gold: {
     id: "jorakay-gold",
     name: "จระเข้ทอง",
-    tag: "Jorakay",
-    color: "#D4AF37",
-    description: "ปูนขาว ไม่ทำให้โมเสกแก้วหรือหินอ่อนเปลี่ยนสี เกรดพรีเมียม ทนทุกสภาพอากาศ",
+    nameEn: "Gold Crocodile",
+    ansi: "ANSI A118.15 / A118.11",
+    color: "#B4914A",
+    colorSoft: "#F3ECDB",
+    tagline: "มาตรฐานสูงสุด ทุกพื้นผิว",
+    description: "รุ่นมาตรฐานสูงสุด ปูกระเบื้องได้ทุกประเภทและหลากหลายพื้นผิว Big size",
+    sizes: "60×60, 60×120, 80×80, 100×100 ซม.",
     link: "https://xn--12cfjb8g6bl2ezag5e8e9e.com/articles/crocodile-gold-cement-glue/",
   },
-];
+};
 
 const GROUT_COVERAGE = 5; // ตร.ม. ต่อถุงยาแนว
 const WASTE_OPTIONS = [0, 5, 10];
-const BLUE = "#5B9BD5";
-const RED = "#ED1B2E";
+const RED = "#C81E2C";
+const INK = "#2B2822";
 
 function round2(n: number) {
   return Math.round(n * 100) / 100;
@@ -248,8 +277,6 @@ export default function TileMaterialCalculator() {
 
   const resultRef = useRef<HTMLDivElement | null>(null);
 
-  // Breakpoints matching the CSS media queries below — used to override the
-  // hard-coded inline gridTemplateColumns/position values on small screens.
   const isTablet = useIsNarrow(980);
   const isMobile = useIsNarrow(650);
 
@@ -281,50 +308,38 @@ export default function TileMaterialCalculator() {
   const animatedGrout = useAnimatedNumber(results.groutBags);
 
   const recommendedAdhesive = useMemo(() => {
+    // ปูทับกระเบื้องเดิม -> เงิน (ออกแบบมาสำหรับงานนี้โดยเฉพาะ) + ทอง เป็นตัวเลือกพรีเมียม
     if (overlay) {
-      const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-silver")!,
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-silver")!,
-      ];
       return {
-        brands,
+        grades: [JORAKAY_GRADES.silver, JORAKAY_GRADES.gold],
         title: "งานปูทับกระเบื้องเดิม",
-        detail: "ห้ามใช้ปูนกาวสูตรธรรมดา แนะนำ COTTO Silver และจระเข้เงิน เพราะให้แรงยึดเกาะสูงพอสำหรับปูทับพื้นผิวเดิม",
+        detail: "แนะนำจระเข้เงิน ซึ่งออกแบบมาสำหรับปูทับพื้นผิวเดิมโดยเฉพาะ หรือจระเข้ทองสำหรับมาตรฐานสูงสุดและพื้นผิวหลากหลายชนิด",
       };
     }
 
-    if (surfaceType === "wall") {
-      const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard")!,
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green")!,
-      ];
+    // กระเบื้องแผ่นใหญ่ 60x60 ขึ้นไป -> แดง เป็นหลัก, ทองเป็นพรีเมียม
+    if (activeTile.id === "f60" || activeTile.id === "w3060") {
       return {
-        brands,
-        title: "ผนังและงานภายในอาคาร",
-        detail: "แนะนำทั้ง COTTO Standard และจระเข้เขียว ใช้คู่กันได้ดีในงานผนังภายในอาคาร",
+        grades: [JORAKAY_GRADES.red, JORAKAY_GRADES.gold],
+        title: "กระเบื้องแผ่นใหญ่",
+        detail: "แนะนำจระเข้แดง มาตรฐาน ANSI A118.4 แรงยึดเกาะสูงพิเศษสำหรับกระเบื้องแผ่นใหญ่ หรือจระเข้ทองสำหรับมาตรฐานสูงสุด",
       };
     }
 
-    if (activeTile.id === "f60") {
-      const brands = [
-        ADHESIVE_BRANDS.find((b) => b.id === "cotto-premium")!,
-        ADHESIVE_BRANDS.find((b) => b.id === "jorakay-red")!,
-      ];
+    // ผนัง ขนาดกลาง 30x45 -> เขียว เป็นหลัก
+    if (surfaceType === "wall" && activeTile.id === "w3045") {
       return {
-        brands,
-        title: "กระเบื้องพื้นขนาดใหญ่",
-        detail: "แนะนำทั้ง COTTO Premium และจระเข้แดง สำหรับงานพื้นกระเบื้องขนาดใหญ่และพื้นที่รับแรงสูง",
+        grades: [JORAKAY_GRADES.green, JORAKAY_GRADES.blue],
+        title: "ผนังขนาดมาตรฐาน",
+        detail: "แนะนำจระเข้เขียว รุ่นขายดีอันดับ 1 คุณภาพมาตรฐานทั้งไทยและสากล เหมาะกับงานผนังทั่วไป",
       };
     }
 
-    const brands = [
-      ADHESIVE_BRANDS.find((b) => b.id === "cotto-standard")!,
-      ADHESIVE_BRANDS.find((b) => b.id === "jorakay-green")!,
-    ];
+    // ผนังขนาดเล็ก 10x16 หรือพื้นทั่วไป 30x30 / 40x40 -> เขียว/เหลือง
     return {
-      brands,
-      title: "งานพื้นทั่วไป",
-      detail: "แนะนำทั้ง COTTO Standard และจระเข้เขียว สำหรับงานพื้นทั่วไป คุ้มค่าและเสถียร",
+      grades: [JORAKAY_GRADES.green, JORAKAY_GRADES.yellow],
+      title: surfaceType === "floor" ? "งานพื้นทั่วไป" : "ผนังขนาดเล็ก",
+      detail: "แนะนำจระเข้เขียว คุ้มค่าและได้มาตรฐาน หรือจระเข้เหลือง รุ่นประหยัดสำหรับงานทั่วไป",
     };
   }, [overlay, surfaceType, activeTile]);
 
@@ -347,9 +362,10 @@ export default function TileMaterialCalculator() {
       `สรุปวัสดุปูกระเบื้อง (${surfaceType === "floor" ? "พื้น" : "ผนัง"} ${activeTile.label})`,
       `พื้นที่: ${round2(Number(area) || 0)} ตร.ม.${waste > 0 ? ` (เผื่อเสีย +${waste}% = ${round2(effectiveArea)} ตร.ม.)` : ""}`,
       `กระเบื้อง: ${results.boxes} กล่อง`,
-      `ปูนกาว: ${results.adhesiveBags} กระสอบ (${recommendedAdhesive.brands.map((b) => b.name).join(" / ")})`,
+      `ปูนกาว: ${results.adhesiveBags} กระสอบ (${recommendedAdhesive.grades.map((g) => g.name).join(" / ")})`,
       `ยาแนว: ${results.groutBags} ถุง`,
       `เกรียงหวีแนะนำ: ${activeTile.notch}`,
+      `คิ้วแนะนำ: ${activeTile.trim}`,
     ];
     const text = lines.join("\n");
     try {
@@ -360,10 +376,6 @@ export default function TileMaterialCalculator() {
     }
   }
 
-  // Responsive overrides for inline styles — inline `style` always beats CSS
-  // classes (even with !important on non-!important inline declarations it's
-  // the reverse, but mixing both was fragile), so we compute the correct
-  // values here based on tracked breakpoints instead of relying on CSS alone.
   const gridStyle: React.CSSProperties = {
     ...styles.grid,
     gridTemplateColumns: isTablet ? "1fr" : styles.grid.gridTemplateColumns,
@@ -378,9 +390,9 @@ export default function TileMaterialCalculator() {
     ...styles.tileGrid,
     gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : styles.tileGrid.gridTemplateColumns,
   };
-  const recommendedBrandRowStyle: React.CSSProperties = {
-    ...styles.recommendedBrandRow,
-    gridTemplateColumns: isTablet ? "1fr" : styles.recommendedBrandRow.gridTemplateColumns,
+  const recommendedGradeRowStyle: React.CSSProperties = {
+    ...styles.recommendedGradeRow,
+    gridTemplateColumns: isTablet ? "1fr" : styles.recommendedGradeRow.gridTemplateColumns,
   };
 
   return (
@@ -409,8 +421,8 @@ export default function TileMaterialCalculator() {
           position: absolute;
           inset: 0;
           background-image:
-            repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 56px),
-            repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 56px);
+            repeating-linear-gradient(0deg, rgba(43,40,34,0.045) 0 1px, transparent 1px 56px),
+            repeating-linear-gradient(90deg, rgba(43,40,34,0.045) 0 1px, transparent 1px 56px);
           mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 85%);
           -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 85%);
           pointer-events: none;
@@ -419,13 +431,12 @@ export default function TileMaterialCalculator() {
         .dtc-root { position: relative; z-index: 1; }
 
         .dtc-glass {
-          background: rgba(255,255,255,0.045);
-          border: 1px solid rgba(255,255,255,0.09);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
+          background: #FFFFFF;
+          border: 1px solid #E7E2D8;
+          box-shadow: 0 1px 2px rgba(43,40,34,0.04), 0 8px 24px -12px rgba(43,40,34,0.08);
           border-radius: 20px;
         }
-        .dtc-input:focus { outline: none; border-color: ${RED}; box-shadow: 0 0 0 3px rgba(237,27,46,0.25); }
+        .dtc-input:focus { outline: none; border-color: ${RED}; box-shadow: 0 0 0 3px rgba(200,30,44,0.14); }
         .dtc-tile-card, .dtc-brand-card, .dtc-toggle-btn, .dtc-waste-btn, .dtc-step-btn, .dtc-copy-btn, .dtc-mobile-bar {
           transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
@@ -433,8 +444,8 @@ export default function TileMaterialCalculator() {
           -webkit-user-select: none;
           user-select: none;
         }
-        .dtc-tile-card:hover, .dtc-brand-card:hover { border-color: rgba(237,27,46,0.5) !important; }
-        button:focus-visible, .dtc-tile-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(237,27,46,0.4); }
+        .dtc-tile-card:hover, .dtc-brand-card:hover { border-color: rgba(200,30,44,0.45) !important; }
+        button:focus-visible, .dtc-tile-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(200,30,44,0.28); }
         .dtc-toggle-btn:active, .dtc-waste-btn:active, .dtc-tile-card:active, .dtc-step-btn:active, .dtc-copy-btn:active {
           transform: scale(0.96);
         }
@@ -456,9 +467,6 @@ export default function TileMaterialCalculator() {
         .dtc-tile-grid { display: grid; gap: 10px; }
         .dtc-brand-grid { display: grid; gap: 10px; }
         .dtc-mobile-bar { display: none; }
-        @media (max-width: 980px) {
-          .dtc-mobile-bar { display: none; }
-        }
         @media (max-width: 650px) {
           .dtc-page { padding: 24px 14px 8px; }
           .dtc-root {
@@ -478,6 +486,27 @@ export default function TileMaterialCalculator() {
       `}</style>
 
       <div className="dtc-root" style={styles.container}>
+        <div className="dtc-glass dtc-card-enter" style={styles.heroCard}>
+          <div style={styles.heroIntro}>
+            <div className="dtc-heading" style={styles.heroTitle}>เครื่องคำนวณวัสดุกระเบื้อง</div>
+            <div style={styles.heroSubtitle}>
+              ป้อนพื้นที่และเลือกขนาดกระเบื้องที่ใช้งานได้ทันที พร้อมแนะนำปูนกาวและยาแนวที่เหมาะสมสำหรับงานพื้นหรือผนัง
+            </div>
+          </div>
+          <div style={styles.heroFeatures}>
+            {[
+              { icon: <Calculator size={16} />, text: "ป้อนค่าได้ง่าย" },
+              { icon: <Ruler size={16} />, text: "แนะนำขนาดเกรียงหวี" },
+              { icon: <ShieldCheck size={16} />, text: "แนะนำปูนกาวอัตโนมัติ" },
+            ].map((item) => (
+              <div key={item.text} style={styles.featureChip}>
+                <span style={styles.featureIcon}>{item.icon}</span>
+                {item.text}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Step indicator */}
         <div style={styles.stepsRow}>
           {[
@@ -616,31 +645,32 @@ export default function TileMaterialCalculator() {
                 ))}
               </div>
               <div style={styles.notchHint}>
-                <Ruler size={13} style={{ opacity: 0.85, flexShrink: 0, color: BLUE }} />
+                <Ruler size={13} style={{ opacity: 0.85, flexShrink: 0, color: "#2F80C4" }} />
                 <span>
-                  เกรียงหวีแนะนำสำหรับขนาดนี้: <b className="dtc-mono" style={{ color: "#fff", fontWeight: 700 }}>{activeTile.notch}</b>
+                  เกรียงหวีแนะนำสำหรับขนาดนี้: <b className="dtc-mono" style={{ color: INK, fontWeight: 700 }}>{activeTile.notch}</b>
                 </span>
               </div>
             </div>
 
-            {/* Adhesive brand */}
+            {/* Adhesive grade */}
             <div className="dtc-glass dtc-card-enter" style={styles.card}>
-              <SectionLabel icon={<Package size={16} />} text="4. ยี่ห้อปูนกาวที่แนะนำ" />
+              <SectionLabel icon={<ShieldCheck size={16} />} text="4. รุ่นปูนกาวจระเข้ที่แนะนำ" />
               <div style={styles.notePill}>ระบบเลือกให้อัตโนมัติตามหน้างาน</div>
-              <div className="dtc-brand-grid" style={recommendedBrandRowStyle}>
-                {recommendedAdhesive.brands.map((brand) => (
-                  <div key={brand.id} className="dtc-brand-card" style={styles.recommendedBrandCard}>
-                    <div style={{ ...styles.brandDot, background: brand.color }} />
+              <div className="dtc-brand-grid" style={recommendedGradeRowStyle}>
+                {recommendedAdhesive.grades.map((grade) => (
+                  <div key={grade.id} className="dtc-brand-card" style={{ ...styles.recommendedGradeCard, background: grade.colorSoft }}>
+                    <div style={{ ...styles.brandDot, background: grade.color }} />
                     <div>
-                      <div style={styles.brandName}>{brand.name}</div>
-                      <div style={styles.brandTag}>{brand.tag}</div>
-                      <div style={styles.brandDescription}>{brand.description}</div>
+                      <div style={styles.brandName}>{grade.name}</div>
+                      <div style={{ ...styles.brandTag, color: grade.color }}>{grade.ansi} · {grade.tagline}</div>
+                      <div style={styles.brandDescription}>{grade.description}</div>
+                      <div style={styles.brandSizes}>เหมาะกับขนาด: {grade.sizes}</div>
                     </div>
                   </div>
                 ))}
               </div>
               <div style={styles.hintRow}>
-                <Info size={13} style={{ opacity: 0.6, flexShrink: 0 }} />
+                <Info size={13} style={{ opacity: 0.55, flexShrink: 0 }} />
                 <div>
                   <div style={styles.hintText}>
                     ปูนกาว 1 กระสอบ ปูได้ {activeTile.adhesiveCoverage} ตร.ม. ด้วยเกรียงหวี {activeTile.notch} · ยาแนว 1 ถุง ปูได้ {GROUT_COVERAGE} ตร.ม.
@@ -672,18 +702,18 @@ export default function TileMaterialCalculator() {
                 label="ปูนกาว"
                 value={animatedAdhesive}
                 unit="กระสอบ"
-                dotColor={recommendedAdhesive.brands[0].color}
-                accent={recommendedAdhesive.brands[0].color}
+                dotColor={recommendedAdhesive.grades[0].color}
+                accent={recommendedAdhesive.grades[0].color}
               />
-              <ResultRow label="ยาแนว" value={animatedGrout} unit="ถุง" dotColor={BLUE} />
+              <ResultRow label="ยาแนว" value={animatedGrout} unit="ถุง" dotColor="#2F80C4" />
 
               <div style={styles.recommendationBox}>
                 <div style={styles.recommendationTitle}>{recommendedAdhesive.title}</div>
                 <div style={styles.recommendationText}>{recommendedAdhesive.detail}</div>
                 <div style={styles.recommendationList}>
-                  {recommendedAdhesive.brands.map((b) => (
-                    <a key={b.id} href={b.link} style={{ ...styles.recommendationBadge, background: b.color }} target="_blank" rel="noreferrer">
-                      {b.name}
+                  {recommendedAdhesive.grades.map((g) => (
+                    <a key={g.id} href={g.link} style={{ ...styles.recommendationBadge, background: g.color }} target="_blank" rel="noreferrer">
+                      {g.name}
                     </a>
                   ))}
                 </div>
@@ -703,7 +733,17 @@ export default function TileMaterialCalculator() {
       </div>
 
       {/* Mobile sticky summary bar */}
-      <div className="dtc-mobile-bar" style={styles.mobileBar} onClick={scrollToResult} role="button" tabIndex={0}>
+      <div
+        className="dtc-mobile-bar"
+        style={styles.mobileBar}
+        onClick={scrollToResult}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") scrollToResult();
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="ดูสรุปวัสดุ"
+      >
         <div style={styles.mobileBarStats}>
           <div style={styles.mobileBarStat}>
             <span className="dtc-mono" style={styles.mobileBarNum}>{animatedBoxes}</span>
@@ -757,7 +797,7 @@ function ResultRow({
         {dotColor && <span style={{ ...styles.resultDot, background: dotColor }} />}
         {label}
       </span>
-      <span className="dtc-mono" style={{ ...styles.resultRowValue, color: accent || "#fff" }}>
+      <span className="dtc-mono" style={{ ...styles.resultRowValue, color: accent || INK }}>
         {value} <span style={styles.resultRowUnit}>{unit}</span>
       </span>
     </div>
@@ -788,7 +828,7 @@ function TileFillPreview({ count, max = 30 }: { count: number; max?: number }) {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    background: "radial-gradient(circle at 15% 0%, #221f1a 0%, #171512 45%, #0d0c0a 100%)",
+    background: "radial-gradient(circle at 15% 0%, #FBFAF6 0%, #F6F3EC 45%, #F0EBE0 100%)",
   },
   container: { maxWidth: 980, margin: "0 auto" },
   stepsRow: { display: "flex", alignItems: "center", marginBottom: 22, padding: "0 4px" },
@@ -797,17 +837,17 @@ const styles: Record<string, React.CSSProperties> = {
     width: 27,
     height: 27,
     borderRadius: "50%",
-    background: "rgba(91,155,213,0.14)",
-    border: `1px solid ${BLUE}66`,
-    color: BLUE,
+    background: "rgba(47,128,196,0.1)",
+    border: "1px solid rgba(47,128,196,0.35)",
+    color: "#2F80C4",
     fontSize: 12,
     fontWeight: 700,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
-  stepLabel: { color: "#8a857c", fontSize: 10.5 },
-  stepLine: { flex: 1, height: 1, background: "rgba(255,255,255,0.1)", margin: "0 4px 18px" },
+  stepLabel: { color: "#8A8474", fontSize: 10.5 },
+  stepLine: { flex: 1, height: 1, background: "#E7E2D8", margin: "0 4px 18px" },
   grid: { display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: 20, alignItems: "start" },
   leftCol: { display: "flex", flexDirection: "column", gap: 16 },
   rightCol: { position: "sticky", top: 20 },
@@ -816,7 +856,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    color: "#cac6be",
+    color: "#5C5748",
     fontSize: 13,
     fontWeight: 500,
     marginBottom: 14,
@@ -834,17 +874,18 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: 48,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgba(255,255,255,0.1)",
-    background: "rgba(255,255,255,0.03)",
-    color: "#cac6be",
+    borderColor: "#E7E2D8",
+    background: "#FAF8F4",
+    color: "#5C5748",
     fontSize: 15,
     fontWeight: 500,
     borderRadius: 12,
   },
   toggleBtnActive: {
-    background: `linear-gradient(135deg, ${RED}, #a80f1d)`,
+    background: `linear-gradient(135deg, ${RED}, #96121D)`,
     borderColor: RED,
     color: "#fff",
+    boxShadow: "0 6px 16px -6px rgba(200,30,44,0.45)",
   },
   areaInputRow: { display: "flex", alignItems: "center", gap: 8 },
   stepBtn: {
@@ -852,27 +893,27 @@ const styles: Record<string, React.CSSProperties> = {
     height: 44,
     flexShrink: 0,
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "rgba(255,255,255,0.04)",
-    color: "#fff",
+    border: "1px solid #E7E2D8",
+    background: "#FAF8F4",
+    color: INK,
     fontSize: 20,
     lineHeight: 1,
     fontWeight: 500,
   },
   areaInput: {
     flex: 1,
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: "#FAF8F4",
+    border: "1px solid #E7E2D8",
     borderRadius: 12,
-    color: "#fff",
+    color: INK,
     fontSize: 22,
     fontWeight: 600,
     padding: "10px 14px",
     width: "100%",
     textAlign: "center",
   },
-  areaUnit: { color: "#9a958b", fontSize: 14, minWidth: 40 },
-  wasteLabel: { color: "#9a958b", fontSize: 12.5, marginBottom: 8 },
+  areaUnit: { color: "#8A8474", fontSize: 14, minWidth: 40 },
+  wasteLabel: { color: "#8A8474", fontSize: 12.5, marginBottom: 8 },
   wasteBtn: {
     flex: 1,
     padding: "10px 0",
@@ -880,27 +921,27 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgba(255,255,255,0.1)",
-    background: "rgba(255,255,255,0.03)",
-    color: "#cac6be",
+    borderColor: "#E7E2D8",
+    background: "#FAF8F4",
+    color: "#5C5748",
     fontSize: 13,
   },
-  wasteBtnActive: { background: "rgba(237,27,46,0.18)", borderColor: RED, color: "#ff8891" },
+  wasteBtnActive: { background: "rgba(200,30,44,0.09)", borderColor: RED, color: RED },
   tileGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 },
   tileCard: {
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgba(255,255,255,0.1)",
-    background: "rgba(255,255,255,0.03)",
+    borderColor: "#E7E2D8",
+    background: "#FAF8F4",
     borderRadius: 12,
     padding: "14px 10px",
     textAlign: "center",
     minHeight: 76,
   },
-  tileCardActive: { borderColor: RED, background: "rgba(237,27,46,0.14)" },
-  tileSize: { color: "#fff", fontSize: 14, fontWeight: 600 },
-  tileSub: { color: "#9a958b", fontSize: 10.5, marginTop: 2 },
-  tileCoverage: { color: "#9a958b", fontSize: 11, marginTop: 6 },
+  tileCardActive: { borderColor: RED, background: "rgba(200,30,44,0.07)" },
+  tileSize: { color: INK, fontSize: 14, fontWeight: 600 },
+  tileSub: { color: "#8A8474", fontSize: 10.5, marginTop: 2 },
+  tileCoverage: { color: "#8A8474", fontSize: 11, marginTop: 6 },
   notchHint: {
     display: "flex",
     alignItems: "center",
@@ -908,9 +949,9 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 14,
     padding: "10px 12px",
     borderRadius: 10,
-    background: "rgba(91,155,213,0.08)",
-    border: `1px solid ${BLUE}33`,
-    color: "#b7c9db",
+    background: "rgba(47,128,196,0.07)",
+    border: "1px solid rgba(47,128,196,0.2)",
+    color: "#2A5F86",
     fontSize: 12,
   },
   notePill: {
@@ -919,46 +960,47 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     padding: "8px 12px",
     borderRadius: 999,
-    background: "rgba(237,27,46,0.14)",
-    color: "#ffd1d6",
+    background: "rgba(200,30,44,0.08)",
+    color: "#96121D",
     fontSize: 12,
     fontWeight: 600,
     marginBottom: 14,
   },
-  recommendedBrandRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
-  recommendedBrandCard: {
+  recommendedGradeRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
+  recommendedGradeCard: {
     display: "flex",
     alignItems: "flex-start",
     gap: 10,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgba(255,255,255,0.1)",
-    background: "rgba(255,255,255,0.03)",
+    borderColor: "rgba(43,40,34,0.06)",
     borderRadius: 14,
     padding: "14px 16px",
   },
-  brandDot: { width: 12, height: 12, borderRadius: "50%", flexShrink: 0, marginTop: 3 },
-  brandName: { color: "#fff", fontSize: 14, fontWeight: 600 },
-  brandTag: { color: "#9a958b", fontSize: 10.5, letterSpacing: 0.5 },
+  brandDot: { width: 12, height: 12, borderRadius: "50%", flexShrink: 0, marginTop: 3, boxShadow: "0 0 0 3px rgba(255,255,255,0.6)" },
+  brandName: { color: INK, fontSize: 14, fontWeight: 600 },
+  brandTag: { fontSize: 10.5, letterSpacing: 0.3, fontWeight: 600, marginTop: 1 },
   hintRow: { display: "flex", gap: 6, marginTop: 12, alignItems: "flex-start" },
-  hintText: { color: "#847f76", fontSize: 11.5, lineHeight: 1.5 },
+  hintText: { color: "#9C9686", fontSize: 11.5, lineHeight: 1.5 },
   resultCard: { padding: "22px 24px" },
-  resultHeader: { marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.08)" },
-  resultTitle: { color: "#fff", fontSize: 18, fontWeight: 600 },
-  resultArea: { color: "#9a958b", fontSize: 12.5, marginTop: 6 },
-  resultAreaBase: { color: "#635e56" },
-  brandDescription: { color: "#a7a29a", fontSize: 12.5, marginTop: 4, maxWidth: 320 },
+  resultHeader: { marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid #EEEAE1" },
+  resultTitle: { color: INK, fontSize: 18, fontWeight: 700 },
+  resultSubtitle: { color: "#5C5748", fontSize: 13, marginTop: 4, lineHeight: 1.6 },
+  resultArea: { color: "#8A8474", fontSize: 12.5, marginTop: 10 },
+  resultAreaBase: { color: "#B4AD9C" },
+  brandDescription: { color: "#5C5748", fontSize: 12.5, marginTop: 4, maxWidth: 320, lineHeight: 1.5 },
+  brandSizes: { color: "#8A8474", fontSize: 11, marginTop: 6, lineHeight: 1.5 },
   recommendationBox: {
     marginTop: 16,
     padding: "14px 16px",
     borderRadius: 14,
-    background: "rgba(255,255,255,0.06)",
+    background: "#FAF8F4",
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "#EEEAE1",
   },
-  recommendationTitle: { color: "#fff", fontSize: 14, fontWeight: 600, marginBottom: 6 },
-  recommendationText: { color: "#cac6be", fontSize: 13, lineHeight: 1.6, marginBottom: 10 },
+  recommendationTitle: { color: INK, fontSize: 14, fontWeight: 600, marginBottom: 6 },
+  recommendationText: { color: "#5C5748", fontSize: 13, lineHeight: 1.6, marginBottom: 10 },
   recommendationList: { display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 },
   recommendationBadge: {
     display: "inline-block",
@@ -974,23 +1016,40 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "baseline",
     padding: "12px 0",
-    borderBottom: "1px solid rgba(255,255,255,0.06)",
+    borderBottom: "1px solid #EEEAE1",
   },
-  resultRowLabel: { color: "#cac6be", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 },
+  resultRowLabel: { color: "#5C5748", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 },
   resultDot: { width: 7, height: 7, borderRadius: "50%", flexShrink: 0 },
   resultRowValue: { fontSize: 20, fontWeight: 700 },
-  resultRowUnit: { fontSize: 11, fontWeight: 500, color: "#9a958b", fontFamily: "'Sarabun', sans-serif" },
+  resultRowUnit: { fontSize: 11, fontWeight: 500, color: "#8A8474", fontFamily: "'Sarabun', sans-serif" },
+  heroCard: { padding: "24px 26px", marginBottom: 20, background: "rgba(255,255,255,0.96)", border: "1px solid rgba(231,226,216,0.9)", boxShadow: "0 18px 40px rgba(43,40,34,0.08)" },
+  heroIntro: { maxWidth: 820 },
+  heroTitle: { color: INK, fontSize: 24, fontWeight: 700, marginBottom: 8 },
+  heroSubtitle: { color: "#5C5748", fontSize: 13.5, lineHeight: 1.8, maxWidth: 650 },
+  heroFeatures: { display: "flex", flexWrap: "wrap", gap: 10, marginTop: 18 },
+  featureChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "10px 14px",
+    borderRadius: 999,
+    background: "#F8F6F0",
+    color: "#4A473B",
+    fontSize: 13,
+    border: "1px solid #E7E2D8",
+  },
+  featureIcon: { display: "inline-flex", alignItems: "center", justifyContent: "center", color: RED },
   tileFillWrap: { padding: "2px 0 14px 15px" },
   tileFillGrid: { display: "flex", flexWrap: "wrap", gap: 4, maxWidth: 280 },
   fillTile: {
     width: 12,
     height: 12,
     borderRadius: 3,
-    background: `linear-gradient(135deg, ${RED}, #a80f1d)`,
-    boxShadow: `0 0 0 1px rgba(255,255,255,0.08)`,
+    background: `linear-gradient(135deg, ${RED}, #96121D)`,
+    boxShadow: "0 0 0 1px rgba(43,40,34,0.06)",
   },
   fillTileMore: {
-    color: "#9a958b",
+    color: "#8A8474",
     fontSize: 10.5,
     display: "flex",
     alignItems: "center",
@@ -1002,9 +1061,9 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "13px 0",
     minHeight: 46,
     borderRadius: 12,
-    border: `1px solid ${RED}66`,
-    background: "rgba(237,27,46,0.12)",
-    color: "#ff8891",
+    border: `1px solid ${RED}`,
+    background: "rgba(200,30,44,0.06)",
+    color: RED,
     fontSize: 13.5,
     fontWeight: 600,
     display: "flex",
@@ -1012,24 +1071,24 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     gap: 8,
   },
-  disclaimer: { color: "#635e56", fontSize: 11, lineHeight: 1.6, marginTop: 16 },
+  disclaimer: { color: "#B4AD9C", fontSize: 11, lineHeight: 1.6, marginTop: 16 },
   mobileBar: {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
     padding: "12px 16px",
     borderRadius: 18,
-    background: "rgba(23,21,18,0.92)",
-    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.94)",
+    border: "1px solid #E7E2D8",
     backdropFilter: "blur(20px)",
     WebkitBackdropFilter: "blur(20px)",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+    boxShadow: "0 10px 30px rgba(43,40,34,0.14)",
   },
   mobileBarStats: { display: "flex", alignItems: "center", gap: 10 },
   mobileBarStat: { display: "flex", flexDirection: "column", alignItems: "center", minWidth: 44 },
-  mobileBarNum: { color: "#fff", fontSize: 16, fontWeight: 700, lineHeight: 1.1 },
-  mobileBarUnit: { color: "#9a958b", fontSize: 10 },
-  mobileBarDivider: { width: 1, height: 24, background: "rgba(255,255,255,0.12)" },
+  mobileBarNum: { color: INK, fontSize: 16, fontWeight: 700, lineHeight: 1.1 },
+  mobileBarUnit: { color: "#8A8474", fontSize: 10 },
+  mobileBarDivider: { width: 1, height: 24, background: "#E7E2D8" },
   mobileBarAction: {
     display: "flex",
     alignItems: "center",
